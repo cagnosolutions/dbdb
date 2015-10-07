@@ -1,6 +1,9 @@
 package dbdb
 
-import "sync"
+import (
+	"runtime"
+	"sync"
+)
 
 type DataStore struct {
 	stores map[string]*Store
@@ -8,15 +11,26 @@ type DataStore struct {
 }
 
 func NewDataStore() *DataStore {
-	return &DataStore{
+	ds := &DataStore{
 		stores: make(map[string]*Store),
 	}
+	if data := Walk("db"); len(data) > 0 {
+		ds.Lock()
+		for store, files := range data {
+			st := NewStore(store)
+			ds.stores[store] = st
+			st.Load(files)
+		}
+		ds.Unlock()
+		runtime.GC()
+	}
+	return ds
 }
 
 func (ds *DataStore) AddStore(name string) {
 	if _, ok := ds.GetStore(name); !ok {
 		ds.Lock()
-		ds.stores[name] = NewStore()
+		ds.stores[name] = NewStore(name)
 		ds.Unlock()
 	}
 }
