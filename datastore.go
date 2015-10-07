@@ -1,0 +1,63 @@
+package dbdb
+
+import "sync"
+
+type DataStore struct {
+	stores map[string]*Store
+	sync.RWMutex
+}
+
+func NewDataStore() *DataStore {
+	return &DataStore{
+		stores: make(map[string]*Store),
+	}
+}
+
+func (ds *DataStore) AddStore(name string) {
+	if _, ok := ds.GetStore(name); !ok {
+		ds.Lock()
+		ds.stores[name] = NewStore()
+		ds.Unlock()
+	}
+}
+
+func (ds *DataStore) GetStore(name string) (*Store, bool) {
+	ds.RLock()
+	st, ok := ds.stores[name]
+	ds.RUnlock()
+	return st, ok
+}
+
+func (ds *DataStore) DelStore(name string) {
+	if _, ok := ds.GetStore(name); ok {
+		ds.Lock()
+		delete(ds.stores, name)
+		ds.Unlock()
+	}
+}
+
+func (ds *DataStore) Add(name string, val interface{}) uint64 {
+	if st, ok := ds.GetStore(name); ok {
+		return st.Add(val)
+	}
+	return 0
+}
+
+func (ds *DataStore) Set(name string, id uint64, val interface{}) {
+	if st, ok := ds.GetStore(name); ok {
+		st.Set(id, val)
+	}
+}
+
+func (ds *DataStore) Get(name string, id uint64) *Doc {
+	if st, ok := ds.GetStore(name); ok {
+		return st.Get(id)
+	}
+	return nil
+}
+
+func (ds *DataStore) Del(name string, id uint64) {
+	if st, ok := ds.GetStore(name); ok {
+		st.Del(id)
+	}
+}
