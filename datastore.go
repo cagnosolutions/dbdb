@@ -1,6 +1,7 @@
 package dbdb
 
 import (
+	"fmt"
 	"runtime"
 	"sync"
 )
@@ -31,6 +32,9 @@ func (ds *DataStore) AddStore(name string) {
 	if _, ok := ds.GetStore(name); !ok {
 		ds.Lock()
 		ds.stores[name] = NewStore(name)
+		func() {
+			WriteStore(fmt.Sprintf("db/%s/", name))
+		}()
 		ds.Unlock()
 	}
 }
@@ -46,6 +50,9 @@ func (ds *DataStore) DelStore(name string) {
 	if _, ok := ds.GetStore(name); ok {
 		ds.Lock()
 		delete(ds.stores, name)
+		func() {
+			DeleteStore(fmt.Sprintf("db/%s/", name))
+		}()
 		ds.Unlock()
 	}
 }

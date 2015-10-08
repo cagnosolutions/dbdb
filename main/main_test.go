@@ -107,8 +107,10 @@ func TestSet(t *testing.T) {
 }
 
 func TestDel(t *testing.T) {
-	for i, store := range stores {
-		ds.Del(store, uint64(i))
+	for _, store := range stores {
+		for i, _ := range vals {
+			ds.Del(store, uint64(i+1))
+		}
 	}
 }
 
@@ -128,6 +130,17 @@ func TestDelStore(t *testing.T) {
 	}
 }
 
+func TestInsert100ish(t *testing.T) {
+	store := "100"
+	ds.AddStore(store)
+	for i := 0; i < 101; i++ {
+		if id := ds.Add(store, vals[rand.Intn(7)]); id == 0 {
+			t.Errorf("TestInsert100ish() -> id == 0\n")
+		}
+	}
+}
+
+/*
 func TestInsert1MillionPlus(t *testing.T) {
 	store := "1048576"
 	ds.AddStore(store)
@@ -137,3 +150,4 @@ func TestInsert1MillionPlus(t *testing.T) {
 		}
 	}
 }
+*/

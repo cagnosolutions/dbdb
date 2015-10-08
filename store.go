@@ -2,6 +2,7 @@ package dbdb
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"strconv"
@@ -47,16 +48,19 @@ func (st *Store) Add(val interface{}) uint64 {
 	stid := atomic.AddUint64(&st.stid, uint64(1))
 	doc := NewDoc(stid, val)
 	st.docs.Set(stid, doc)
-	// TODO: go func(){ write(...) }()
+	func() {
+		WriteDoc(fmt.Sprintf("db/%s/%d.json", st.name, stid), doc)
+	}()
 	return stid
 }
 
 func (st *Store) Set(id uint64, val interface{}) {
-	// only set if document exists
 	if doc, ok := st.docs.Get(id); ok {
 		doc.Update(val)
 		st.docs.Set(id, doc)
-		// TODO: go func(){ write(...) }()
+		func() {
+			WriteDoc(fmt.Sprintf("db/%s/%d.json", st.name, id), doc)
+		}()
 	}
 }
 
@@ -69,5 +73,7 @@ func (st *Store) Get(id uint64) *Doc {
 
 func (st *Store) Del(id uint64) {
 	st.docs.Del(id)
-	// TODO: go func(){ delete(...) }()
+	func() {
+		DeleteDoc(fmt.Sprintf("db/%s/%d.json", st.name, id))
+	}()
 }
