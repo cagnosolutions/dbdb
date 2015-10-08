@@ -1,0 +1,11 @@
+TODO's That Need To Be Worked On
+================================
+
+*If you use json tags on a model (client side, or anywhere really) to make the 
+names lowercase; ToStruct() doesn't work. This is because I am not checking
+anything out about struct tags when marshalling back from a map to a struct.
+
+*Query methods, both string searching on disk, and key/value filtering.
+
+*Add GetAllDocuments() method that returns a Docs type (type Docs []Doc) which
+implements sorting methods on Doc.Id.

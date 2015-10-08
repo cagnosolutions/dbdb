@@ -35,6 +35,28 @@ func (st *Store) Load(files []string) {
 		if err != nil {
 			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
 		}
+		var doc Doc
+		if err := json.Unmarshal(data, &doc); err != nil {
+			log.Fatalf("Store.Load() -> error unmarshaling data from file (%v), possible corruption?\n", file)
+		}
+		st.docs.Set(id, &doc)
+	}
+	st.stid = id
+}
+
+/*
+func (st *Store) Load(files []string) {
+	var id uint64
+	for _, file := range files {
+		info := strings.Split(file, ".")
+		id, err := strconv.ParseUint(info[0], 10, 64)
+		if err != nil || len(info) != 2 {
+			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
+		}
+		data, err := ioutil.ReadFile("db/" + st.name + "/" + file)
+		if err != nil {
+			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
+		}
 		var val map[string]interface{}
 		if err := json.Unmarshal(data, &val); err != nil {
 			log.Fatalf("Store.Load() -> error unmarshaling data from file (%v), possible corruption?\n", file)
@@ -43,6 +65,7 @@ func (st *Store) Load(files []string) {
 	}
 	st.stid = id
 }
+*/
 
 func (st *Store) Add(val interface{}) uint64 {
 	stid := atomic.AddUint64(&st.stid, uint64(1))

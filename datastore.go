@@ -8,6 +8,7 @@ import (
 
 type DataStore struct {
 	stores map[string]*Store
+	server *Server
 	sync.RWMutex
 }
 
@@ -26,6 +27,11 @@ func NewDataStore() *DataStore {
 		runtime.GC()
 	}
 	return ds
+}
+
+func (ds *DataStore) Listen(port string) {
+	ds.server = NewServer(ds)
+	ds.server.ListenAndServe(port)
 }
 
 func (ds *DataStore) AddStore(name string) {
