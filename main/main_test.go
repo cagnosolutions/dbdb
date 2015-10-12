@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/cagnosolutions/dbdb"
+	"github.com/cagnosolutions/dbdb"
 )
 
 var ds *dbdb.DataStore = dbdb.NewDataStore()
