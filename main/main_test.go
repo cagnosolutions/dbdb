@@ -3,8 +3,6 @@ package main
 import (
 	"math/rand"
 	"testing"
-
-	"github.com/cagnosolutions/dbdb"
 	"github.com/cagnosolutions/dbdb"
 )
 
