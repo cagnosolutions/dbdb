@@ -37,27 +37,27 @@ func (rpcc *RPCClient) DelStore(store string) (*bool, error) {
 	return ok, err
 }
 
-func (rpcc *RPCClient) Add(docmsg DocMsg) (*uint64, error) {
+func (rpcc *RPCClient) Add(rpcdoc RPCDoc) (*uint64, error) {
 	var docid *uint64
-	err := rpcc.conn.Call("RPCServer.Add", docmsg, &docid)
+	err := rpcc.conn.Call("RPCServer.Add", rpcdoc, &docid)
 	return docid, err
 }
 
-func (rpcc *RPCClient) Set(docmsg DocMsg) (*bool, error) {
+func (rpcc *RPCClient) Set(rpcdoc RPCDoc) (*bool, error) {
 	var ok *bool
-	err := rpcc.conn.Call("RPCServer.Set", docmsg, &ok)
+	err := rpcc.conn.Call("RPCServer.Set", rpcdoc, &ok)
 	return ok, err
 }
 
-func (rpcc *RPCClient) Get(docmsg DocMsg) (*Doc, error) {
+func (rpcc *RPCClient) Get(rpcdoc RPCDoc) (*Doc, error) {
 	var doc *Doc
-	err := rpcc.conn.Call("RPCServer.Get", docmsg, &doc)
+	err := rpcc.conn.Call("RPCServer.Get", rpcdoc, &doc)
 	return doc, err
 }
 
-func (rpcc *RPCClient) Del(docmsg DocMsg) (*bool, error) {
+func (rpcc *RPCClient) Del(rpcdoc RPCDoc) (*bool, error) {
 	var ok *bool
-	err := rpcc.conn.Call("RPCServer.Del", docmsg, &ok)
+	err := rpcc.conn.Call("RPCServer.Del", rpcdoc, &ok)
 	return ok, err
 }
 

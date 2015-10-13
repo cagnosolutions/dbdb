@@ -7,12 +7,6 @@ import (
 	"net/rpc"
 )
 
-type DocMsg struct {
-	Store  string
-	DocId  uint64
-	DocVal interface{}
-}
-
 type RPCServer struct {
 	ds *DataStore
 }
@@ -44,32 +38,32 @@ func (rpcs *RPCServer) DelStore(store string, resp *bool) error {
 	return nil
 }
 
-func (rpcs *RPCServer) Add(docmsg DocMsg, resp *uint64) error {
-	docid := rpcs.ds.Add(docmsg.Store, docmsg.DocVal)
+func (rpcs *RPCServer) Add(rpcdoc RPCDoc, resp *uint64) error {
+	docid := rpcs.ds.Add(rpcdoc.Store, rpcdoc.DocVal)
 	if docid == 0 {
-		return fmt.Errorf("error adding document (%v)\n", docmsg.DocVal)
+		return fmt.Errorf("error adding document (%v)\n", rpcdoc.DocVal)
 	}
 	*resp = docid
 	return nil
 }
 
-func (rpcs *RPCServer) Set(docmsg DocMsg, resp *bool) error {
-	rpcs.ds.Set(docmsg.Store, docmsg.DocId, docmsg.DocVal)
+func (rpcs *RPCServer) Set(rpcdoc RPCDoc, resp *bool) error {
+	rpcs.ds.Set(rpcdoc.Store, rpcdoc.DocId, rpcdoc.DocVal)
 	*resp = true
 	return nil
 }
 
-func (rpcs *RPCServer) Get(docmsg DocMsg, resp *Doc) error {
-	doc := rpcs.ds.Get(docmsg.Store, docmsg.DocId)
+func (rpcs *RPCServer) Get(rpcdoc RPCDoc, resp *Doc) error {
+	doc := rpcs.ds.Get(rpcdoc.Store, rpcdoc.DocId)
 	if doc == nil {
-		return fmt.Errorf("error getting document (%v)\n", docmsg.DocId)
+		return fmt.Errorf("error getting document (%v)\n", rpcdoc.DocId)
 	}
 	*resp = *doc
 	return nil
 }
 
-func (rpcs *RPCServer) Del(docmsg DocMsg, resp *bool) error {
-	rpcs.ds.Del(docmsg.Store, docmsg.DocId)
+func (rpcs *RPCServer) Del(rpcdoc RPCDoc, resp *bool) error {
+	rpcs.ds.Del(rpcdoc.Store, rpcdoc.DocId)
 	*resp = true
 	return nil
 }
