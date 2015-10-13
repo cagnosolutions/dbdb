@@ -69,14 +69,16 @@ func (rpcs *RPCServer) Del(rpcdoc RPCDoc, resp *bool) error {
 }
 
 func (rpcs *RPCServer) ListenAndServe(host string) {
-	rpc.Register(rpcs)
+	if err := rpc.Register(rpcs); err != nil {
+		log.Fatalf("RPCServer.ListenAndServe() -> rpc.Register() -> %v\n", err)
+	}
 	addr, err := net.ResolveTCPAddr("tcp", host)
 	if err != nil {
-		log.Fatalf("RPCServer.Listen() -> net.ResolveTCPAddr() -> %v\n", err)
+		log.Fatalf("RPCServer.ListenAndServe() -> net.ResolveTCPAddr() -> %v\n", err)
 	}
 	ln, err := net.ListenTCP("tcp", addr)
 	if err != nil {
-		log.Fatalf("RPCServer.Listen() -> net.ListenTCP() -> %v\n", err)
+		log.Fatalf("RPCServer.ListenAndServe() -> net.ListenTCP() -> %v\n", err)
 	}
 	for {
 		conn, err := ln.Accept()
