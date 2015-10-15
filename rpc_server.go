@@ -47,6 +47,20 @@ func NewRPCServer(ds *DataStore) *RPCServer {
 	}
 }
 
+//func (*Receiver) DoNothing(_, _ *struct{}), error
+
+func (rpcs *RPCServer) GetAllStoreStats(_ struct{}, resp *[]*StoreStat) error {
+	stats := rpcs.ds.GetAllStoreStats()
+	*resp = stats
+	return nil
+}
+
+func (rpcs *RPCServer) GetStoreStat(store string, resp *StoreStat) error {
+	stat := rpcs.ds.GetStoreStat(store)
+	*resp = *stat
+	return nil
+}
+
 func (rpcs *RPCServer) AddStore(store string, resp *bool) error {
 	rpcs.ds.AddStore(store)
 	*resp = true
@@ -62,17 +76,6 @@ func (rpcs *RPCServer) HasStore(store string, resp *bool) error {
 	return nil
 }
 
-/*
-func (rpcs *RPCServer) GetStore(store string, resp *Store) error {
-	st, ok := rpcs.ds.GetStore(store)
-	if !ok {
-		return fmt.Errorf("store (%s) not found\n", store)
-	}
-	*resp = *st
-	return nil
-}
-*/
-
 func (rpcs *RPCServer) DelStore(store string, resp *bool) error {
 	rpcs.ds.DelStore(store)
 	*resp = true
@@ -82,7 +85,7 @@ func (rpcs *RPCServer) DelStore(store string, resp *bool) error {
 func (rpcs *RPCServer) Add(rpcdoc RPCDoc, resp *uint64) error {
 	docid := rpcs.ds.Add(rpcdoc.Store, rpcdoc.DocVal)
 	if docid == 0 {
-		return fmt.Errorf("error adding document (%v)\n", rpcdoc.DocVal)
+		return fmt.Errorf("error adding document (%+v)\n", rpcdoc.DocVal)
 	}
 	*resp = docid
 	return nil
@@ -97,9 +100,18 @@ func (rpcs *RPCServer) Set(rpcdoc RPCDoc, resp *bool) error {
 func (rpcs *RPCServer) Get(rpcdoc RPCDoc, resp *Doc) error {
 	doc := rpcs.ds.Get(rpcdoc.Store, rpcdoc.DocId)
 	if doc == nil {
-		return fmt.Errorf("error getting document (%v)\n", rpcdoc.DocId)
+		return fmt.Errorf("error getting document (%d)\n", rpcdoc.DocId)
 	}
 	*resp = *doc
+	return nil
+}
+
+func (rpcs *RPCServer) GetAll(rpcdoc RPCDoc, resp *[]*Doc) error {
+	docs := rpcs.ds.GetAll(rpcdoc.Store, rpcdoc.DocIds...)
+	if docs == nil || len(docs) < 1 {
+		return fmt.Errorf("error getting all documents (%d)\n", rpcdoc.DocIds)
+	}
+	*resp = docs
 	return nil
 }
 
@@ -108,27 +120,3 @@ func (rpcs *RPCServer) Del(rpcdoc RPCDoc, resp *bool) error {
 	*resp = true
 	return nil
 }
-
-/*
-func (rpcs *RPCServer) ListenAndServe(host string) {
-	if err := rpc.Register(rpcs); err != nil {
-		log.Fatalf("RPCServer.ListenAndServe() -> rpc.Register() -> %v\n", err)
-	}
-	addr, err := net.ResolveTCPAddr("tcp", host)
-	if err != nil {
-		log.Fatalf("RPCServer.ListenAndServe() -> net.ResolveTCPAddr() -> %v\n", err)
-	}
-	ln, err := net.ListenTCP("tcp", addr)
-	if err != nil {
-		log.Fatalf("RPCServer.ListenAndServe() -> net.ListenTCP() -> %v\n", err)
-	}
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Printf("error accepting conn: %v\n", err)
-			continue
-		}
-		rpc.ServeConn(conn)
-	}
-}
-*/

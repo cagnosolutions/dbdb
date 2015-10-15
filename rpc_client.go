@@ -6,15 +6,15 @@ import (
 	"net/rpc"
 )
 
+func init() {
+	gob.Register([]interface{}(nil))
+}
+
 type RPCClient struct {
 	conn *rpc.Client
 }
 
 func NewRPCClient(dsn string) *RPCClient {
-
-	// register some missing types...
-	gob.Register([]interface{}(nil))
-
 	conn, err := rpc.Dial("tcp", dsn)
 	if err != nil {
 		log.Fatalf("NewRPCClient() -> rpc.Dial() -> %v\n", err)
@@ -22,6 +22,18 @@ func NewRPCClient(dsn string) *RPCClient {
 	return &RPCClient{
 		conn: conn,
 	}
+}
+
+func (rpcc *RPCClient) GetAllStoreStats() ([]*StoreStat, error) {
+	var stats []*StoreStat
+	err := rpcc.conn.Call("RPCServer.GetAllStoreStats", nil, &stats)
+	return stats, err
+}
+
+func (rpcc *RPCClient) GetStoreStat(store string) (*StoreStat, error) {
+	var stat *StoreStat
+	err := rpcc.conn.Call("RPCServer.GetStoreStat", store, &stat)
+	return stat, err
 }
 
 func (rpcc *RPCClient) AddStore(store string) (bool, error) {
@@ -35,17 +47,6 @@ func (rpcc *RPCClient) HasStore(store string) (bool, error) {
 	err := rpcc.conn.Call("RPCServer.HasStore", store, &ok)
 	return ok, err
 }
-
-/*
-func (rpcc *RPCClient) GetStore(store string) (*Store, error) {
-	var st *Store
-	err := rpcc.conn.Call("RPCServer.GetStore", store, &st)
-	if err != nil {
-		log.Printf("RPCClient.GetStore() -> (%+T) %+#v\n", err, err)
-	}
-	return st, err
-}
-*/
 
 func (rpcc *RPCClient) DelStore(store string) (bool, error) {
 	var ok bool
@@ -69,6 +70,16 @@ func (rpcc *RPCClient) Get(rpcdoc RPCDoc) (*Doc, error) {
 	var doc *Doc
 	err := rpcc.conn.Call("RPCServer.Get", rpcdoc, &doc)
 	return doc, err
+}
+
+func (rpcc *RPCClient) GetAll(name string, id ...uint64) ([]*Doc, error) {
+	rpcdoc := RPCDoc{
+		Store:  name,
+		DocIds: id,
+	}
+	var docs []*Doc
+	err := rpcc.conn.Call("RPCServer.GetAll", rpcdoc, &docs)
+	return docs, err
 }
 
 func (rpcc *RPCClient) Del(rpcdoc RPCDoc) (bool, error) {
