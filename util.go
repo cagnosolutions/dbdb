@@ -39,10 +39,17 @@ func DeleteDoc(filepath string) {
 }
 
 func ToMap(v interface{}) map[string]interface{} {
+
 	value := reflect.ValueOf(v)
 	if value.Kind() == reflect.Ptr {
 		value = value.Elem()
 	}
+
+	// if v is map[string]interface{} return
+	if value.Type().String() == "map[string]interface {}" {
+		return v.(map[string]interface{})
+	}
+	
 	if value.Kind() != reflect.Struct {
 		log.Fatalf("ToMap() -> value must be %q or %q", "struct", "&struct")
 	}
