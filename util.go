@@ -61,7 +61,7 @@ func ToMap(v interface{}) map[string]interface{} {
 		} else {
 			finalVal = val.Interface()
 		}
-		output[strings.ToLower(field.Name)] = finalVal
+		output[strings.ToLower(field.Name[0:1])+field.Name[1:]] = finalVal
 	}
 	return output
 }

@@ -3,6 +3,7 @@ package dbdb
 import (
 	"fmt"
 	"runtime"
+	"sort"
 	"sync"
 )
 
@@ -28,13 +29,8 @@ func NewDataStore() *DataStore {
 	return ds
 }
 
-type StoreStat struct {
-	Name     string // sort by this
-	Id, Docs uint64
-}
-
-func (ds *DataStore) GetAllStoreStats() []*StoreStat {
-	var stats []*StoreStat
+func (ds *DataStore) GetAllStoreStats() StoreStatSorted {
+	var stats StoreStatSorted
 	ds.RLock()
 	for name, store := range ds.Stores {
 		stats = append(stats, &StoreStat{
@@ -44,6 +40,7 @@ func (ds *DataStore) GetAllStoreStats() []*StoreStat {
 		})
 	}
 	ds.RUnlock()
+	sort.Stable(stats)
 	return stats
 }
 
