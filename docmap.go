@@ -37,6 +37,16 @@ func getshard(n uint64) uint32 {
 	return hasher.Sum32() % SHARD_COUNT
 }
 
+func (m *DocMap) Size() uint64 {
+	var count uint64
+	for doc := range m.Iter() {
+		if doc != nil {
+			count++
+		}
+	}
+	return count
+}
+
 func (m *DocMap) GetShard(key uint64) *Shard {
 	bucket := getshard(key)
 	return (*m)[bucket]

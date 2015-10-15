@@ -28,6 +28,46 @@ func NewDataStore() *DataStore {
 	return ds
 }
 
+type StoreStat struct {
+	Name     string // sort by this
+	Id, Docs uint64
+}
+
+func (ds *DataStore) GetAllStoreStats() []*StoreStat {
+	var stats []*StoreStat
+	ds.RLock()
+	for name, store := range ds.Stores {
+		stats = append(stats, &StoreStat{
+			Name: name,
+			Id:   store.StoreId,
+			Docs: store.Docs.Size(),
+		})
+	}
+	ds.RUnlock()
+	return stats
+}
+
+func (ds *DataStore) GetStoreStat(name string) *StoreStat {
+	var stat *StoreStat
+	ds.RLock()
+	if st, ok := ds.Stores[name]; ok {
+		stat = &StoreStat{
+			Name: st.Name,
+			Id:   st.StoreId,
+			Docs: st.Docs.Size(),
+		}
+	}
+	ds.RUnlock()
+	return stat
+}
+
+func (ds *DataStore) HasStore(name string) bool {
+	ds.RLock()
+	_, ok := ds.Stores[name]
+	ds.RUnlock()
+	return ok
+}
+
 func (ds *DataStore) AddStore(name string) {
 	if _, ok := ds.GetStore(name); !ok {
 		ds.Lock()
@@ -37,13 +77,6 @@ func (ds *DataStore) AddStore(name string) {
 		}()
 		ds.Unlock()
 	}
-}
-
-func (ds *DataStore) HasStore(name string) bool {
-	ds.RLock()
-	_, ok := ds.Stores[name]
-	ds.RUnlock()
-	return ok
 }
 
 func (ds *DataStore) GetStore(name string) (*Store, bool) {
