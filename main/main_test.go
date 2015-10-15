@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
+
 	"github.com/cagnosolutions/dbdb"
 )
 
@@ -64,6 +66,18 @@ func TestAddStore(t *testing.T) {
 	}
 }
 
+func TestHasStore(t *testing.T) {
+	var count int
+	for _, store := range stores {
+		if ok := ds.HasStore(store); ok {
+			count++
+		}
+	}
+	if count != 5 {
+		t.Errorf("TestHasStore() -> count != 5, was %d\n", count)
+	}
+}
+
 func TestGetStore(t *testing.T) {
 	var count int
 	for _, store := range stores {
@@ -87,6 +101,29 @@ func TestAdd(t *testing.T) {
 	}
 }
 
+func TestGetAllStoreStats(t *testing.T) {
+	var count int
+	stats := ds.GetAllStoreStats()
+	for _, stat := range stats {
+		if stat != nil && stat.Name != "" && stat.Docs == 8 {
+			count++
+		}
+	}
+	if count != 5 {
+		t.Errorf("TestGetAllStoreStats() -> count != 5, was %d\n", count)
+	}
+	for _, stat := range stats {
+		fmt.Printf("%+v\n", *stat)
+	}
+}
+
+func TestGetStoreStat(t *testing.T) {
+	stat := ds.GetStoreStat("clients")
+	if stat == nil || stat.Name == "" || stat.Docs < 8 {
+		t.Errorf("TestGetStoreStat() -> stat: %+v\n", stat)
+	}
+}
+
 func TestGet(t *testing.T) {
 	for _, store := range stores {
 		for i, _ := range vals {
@@ -94,6 +131,26 @@ func TestGet(t *testing.T) {
 				t.Errorf("TestGet() -> doc == nil\n")
 			}
 		}
+	}
+}
+
+func TestGetAll1(t *testing.T) {
+	docs := ds.GetAll("clients")
+	if docs == nil || len(docs) < 1 {
+		t.Errorf("TestGetAll1() -> docs: %+v\n", docs)
+	}
+	for _, doc := range docs {
+		fmt.Printf("%+v\n", *doc)
+	}
+}
+
+func TestGetAll2(t *testing.T) {
+	docs := ds.GetAll("clients", uint64(3), uint64(5), uint64(2), uint64(6))
+	if docs == nil || len(docs) != 4 {
+		t.Errorf("TestGetAll1() -> docs: %+v\n", docs)
+	}
+	for _, doc := range docs {
+		fmt.Printf("%+v\n", *doc)
 	}
 }
 

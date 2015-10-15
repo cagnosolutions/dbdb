@@ -29,7 +29,7 @@ func NewDataStore() *DataStore {
 	return ds
 }
 
-func (ds *DataStore) GetAllStoreStats() StoreStatSorted {
+func (ds *DataStore) GetAllStoreStats() []*StoreStat {
 	var stats StoreStatSorted
 	ds.RLock()
 	for name, store := range ds.Stores {
@@ -76,6 +76,7 @@ func (ds *DataStore) AddStore(name string) {
 	}
 }
 
+// FOR INTERNAL USE ONLY
 func (ds *DataStore) GetStore(name string) (*Store, bool) {
 	ds.RLock()
 	st, ok := ds.Stores[name]
@@ -110,6 +111,13 @@ func (ds *DataStore) Set(name string, id uint64, val interface{}) {
 func (ds *DataStore) Get(name string, id uint64) *Doc {
 	if st, ok := ds.GetStore(name); ok {
 		return st.Get(id)
+	}
+	return nil
+}
+
+func (ds *DataStore) GetAll(name string, id ...uint64) []*Doc {
+	if st, ok := ds.GetStore(name); ok {
+		return st.GetAll(id...)
 	}
 	return nil
 }

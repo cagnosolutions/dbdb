@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"hash/fnv"
 	"log"
+	"sort"
 	"sync"
 )
 
@@ -65,6 +66,17 @@ func (m *DocMap) Get(id uint64) (*Doc, bool) {
 	val, ok := shard.Docs[id]
 	shard.RUnlock()
 	return val, ok
+}
+
+func (m *DocMap) GetAll() []*Doc {
+	var docs DocSorted
+	for doc := range m.Iter() {
+		if doc != nil {
+			docs = append(docs, doc)
+		}
+	}
+	sort.Sort(docs)
+	return docs
 }
 
 func (m *DocMap) Del(id uint64) {

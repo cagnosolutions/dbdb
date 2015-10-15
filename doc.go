@@ -28,3 +28,18 @@ func (d *Doc) Update(data interface{}) {
 func (d *Doc) As(v interface{}) error {
 	return ToStruct(d.Data, v)
 }
+
+// SORT
+type DocSorted []*Doc
+
+func (ds DocSorted) Len() int {
+	return len(ds)
+}
+
+func (ds DocSorted) Less(i, j int) bool {
+	return ds[i].Id < ds[j].Id
+}
+
+func (ds DocSorted) Swap(i, j int) {
+	ds[i], ds[j] = ds[j], ds[i]
+}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -45,29 +46,6 @@ func (st *Store) Load(files []string) {
 	st.StoreId = docid
 }
 
-/*
-func (st *Store) Load(files []string) {
-	var id uint64
-	for _, file := range files {
-		info := strings.Split(file, ".")
-		id, err := strconv.ParseUint(info[0], 10, 64)
-		if err != nil || len(info) != 2 {
-			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
-		}
-		data, err := ioutil.ReadFile("db/" + st.Name + "/" + file)
-		if err != nil {
-			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
-		}
-		var val map[string]interface{}
-		if err := json.Unmarshal(data, &val); err != nil {
-			log.Fatalf("Store.Load() -> error unmarshaling data from file (%v), possible corruption?\n", file)
-		}
-		st.Docs.Set(id, NewDoc(id, val))
-	}
-	st.StoreId = id
-}
-*/
-
 func (st *Store) Add(val interface{}) uint64 {
 	StoreId := atomic.AddUint64(&st.StoreId, uint64(1))
 	doc := NewDoc(StoreId, val)
@@ -93,6 +71,20 @@ func (st *Store) Get(id uint64) *Doc {
 		return doc
 	}
 	return nil
+}
+
+func (st *Store) GetAll(id ...uint64) []*Doc {
+	if len(id) == 0 {
+		return st.Docs.GetAll()
+	}
+	var docs DocSorted
+	for _, docid := range id {
+		if doc, ok := st.Docs.Get(docid); ok {
+			docs = append(docs, doc)
+		}
+	}
+	sort.Sort(docs)
+	return docs
 }
 
 func (st *Store) Del(id uint64) {
