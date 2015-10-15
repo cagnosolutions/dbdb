@@ -60,7 +60,7 @@ func ToMap(v interface{}) map[string]interface{} {
 		} else {
 			finalVal = val.Interface()
 		}
-		output[field.Name] = finalVal
+		output[field.Name] = finalVal // TODO: force field.Name to lower-case at this point...
 	}
 	return output
 }
@@ -95,7 +95,7 @@ func ToStruct(m map[string]interface{}, ptr interface{}) error {
 		return fmt.Errorf("Expected pointer didn't get one...")
 	}
 	for mFld, mVal := range m {
-		setField(structVal.Elem(), mFld, mVal)
+		setField(structVal.Elem(), mFld, mVal) // TODO: force mFld to title-case at this point...
 	}
 	return nil
 }
@@ -106,6 +106,26 @@ func setField(structVal reflect.Value, mFld string, mVal interface{}) {
 		val := reflect.ValueOf(mVal)
 		if fld.Type() == val.Type() {
 			fld.Set(val)
+		} else if fld.Type() != val.Type() && isFloat(val.Kind()) {
+			setNumber(fld, val)
 		}
 	}
+}
+
+func setNumber(sv, mv reflect.Value) {
+	switch sv.Kind() {
+	case reflect.Float32:
+		sv.SetFloat(mv.Interface().(float64))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		sv.SetInt(int64(mv.Interface().(float64)))
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		sv.SetUint(uint64(mv.Interface().(float64)))
+	}
+}
+
+func isFloat(k reflect.Kind) bool {
+	if k == reflect.Float32 || k == reflect.Float64 {
+		return true
+	}
+	return false
 }

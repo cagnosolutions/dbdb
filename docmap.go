@@ -12,7 +12,7 @@ const SHARD_COUNT uint32 = 64
 type DocMap []*Shard
 
 type Shard struct {
-	docs map[uint64]*Doc
+	Docs map[uint64]*Doc
 	sync.RWMutex
 }
 
@@ -20,7 +20,7 @@ func NewDocMap() *DocMap {
 	m := make(DocMap, SHARD_COUNT)
 	for i := 0; uint32(i) < SHARD_COUNT; i++ {
 		m[i] = &Shard{
-			docs: make(map[uint64]*Doc),
+			Docs: make(map[uint64]*Doc),
 		}
 	}
 	return &m
@@ -45,14 +45,14 @@ func (m *DocMap) GetShard(key uint64) *Shard {
 func (m *DocMap) Set(id uint64, val *Doc) {
 	shard := m.GetShard(id)
 	shard.Lock()
-	shard.docs[id] = val
+	shard.Docs[id] = val
 	shard.Unlock()
 }
 
 func (m *DocMap) Get(id uint64) (*Doc, bool) {
 	shard := m.GetShard(id)
 	shard.RLock()
-	val, ok := shard.docs[id]
+	val, ok := shard.Docs[id]
 	shard.RUnlock()
 	return val, ok
 }
@@ -60,7 +60,7 @@ func (m *DocMap) Get(id uint64) (*Doc, bool) {
 func (m *DocMap) Del(id uint64) {
 	if shard := m.GetShard(id); shard != nil {
 		shard.Lock()
-		delete(shard.docs, id)
+		delete(shard.Docs, id)
 		shard.Unlock()
 	}
 }
@@ -70,7 +70,7 @@ func (m *DocMap) Iter() <-chan *Doc {
 	go func() {
 		for _, shard := range *m {
 			shard.RLock()
-			for _, doc := range shard.docs {
+			for _, doc := range shard.Docs {
 				ch <- doc
 			}
 			shard.RUnlock()

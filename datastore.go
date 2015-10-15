@@ -7,20 +7,20 @@ import (
 )
 
 type DataStore struct {
-	stores map[string]*Store
-	server *Server
+	Stores map[string]*Store
+	//Server    *Server
 	sync.RWMutex
 }
 
 func NewDataStore() *DataStore {
 	ds := &DataStore{
-		stores: make(map[string]*Store),
+		Stores: make(map[string]*Store),
 	}
 	if data := Walk("db"); len(data) > 0 {
 		ds.Lock()
 		for store, files := range data {
 			st := NewStore(store)
-			ds.stores[store] = st
+			ds.Stores[store] = st
 			st.Load(files)
 		}
 		ds.Unlock()
@@ -29,15 +29,17 @@ func NewDataStore() *DataStore {
 	return ds
 }
 
-func (ds *DataStore) Listen(port string) {
-	ds.server = NewServer(ds)
-	ds.server.ListenAndServe(port)
+/*
+func (ds *DataStore) TCPListen(port string) {
+	ds.Server = NewServer(ds)
+	ds.Server.ListenAndServe(port)
 }
+*/
 
 func (ds *DataStore) AddStore(name string) {
 	if _, ok := ds.GetStore(name); !ok {
 		ds.Lock()
-		ds.stores[name] = NewStore(name)
+		ds.Stores[name] = NewStore(name)
 		func() {
 			WriteStore(fmt.Sprintf("db/%s/", name))
 		}()
@@ -45,9 +47,16 @@ func (ds *DataStore) AddStore(name string) {
 	}
 }
 
+func (ds *DataStore) HasStore(name string) bool {
+	ds.RLock()
+	_, ok := ds.Stores[name]
+	ds.RUnlock()
+	return ok
+}
+
 func (ds *DataStore) GetStore(name string) (*Store, bool) {
 	ds.RLock()
-	st, ok := ds.stores[name]
+	st, ok := ds.Stores[name]
 	ds.RUnlock()
 	return st, ok
 }
@@ -55,7 +64,7 @@ func (ds *DataStore) GetStore(name string) (*Store, bool) {
 func (ds *DataStore) DelStore(name string) {
 	if _, ok := ds.GetStore(name); ok {
 		ds.Lock()
-		delete(ds.stores, name)
+		delete(ds.Stores, name)
 		func() {
 			DeleteStore(fmt.Sprintf("db/%s/", name))
 		}()

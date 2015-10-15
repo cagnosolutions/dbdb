@@ -1,11 +1,41 @@
 package dbdb
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net"
 	"net/rpc"
 )
+
+func Serve(ds *DataStore, port string) {
+
+	// register some types for gob...
+	gob.Register([]interface{}(nil))
+	gob.Register(map[string]interface{}(nil))
+
+	srv := NewRPCServer(ds)
+	if err := rpc.Register(srv); err != nil {
+		log.Fatal(err)
+	}
+	addr, err := net.ResolveTCPAddr("tcp", port)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ln, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Listening for connections on %s...", port)
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Printf("error accepting conn: %v\n", err)
+			continue
+		}
+		rpc.ServeConn(conn)
+	}
+}
 
 type RPCServer struct {
 	ds *DataStore
@@ -23,6 +53,16 @@ func (rpcs *RPCServer) AddStore(store string, resp *bool) error {
 	return nil
 }
 
+func (rpcs *RPCServer) HasStore(store string, resp *bool) error {
+	ok := rpcs.ds.HasStore(store)
+	if !ok {
+		return fmt.Errorf("store (%s) not found\n", store)
+	}
+	*resp = ok
+	return nil
+}
+
+/*
 func (rpcs *RPCServer) GetStore(store string, resp *Store) error {
 	st, ok := rpcs.ds.GetStore(store)
 	if !ok {
@@ -31,6 +71,7 @@ func (rpcs *RPCServer) GetStore(store string, resp *Store) error {
 	*resp = *st
 	return nil
 }
+*/
 
 func (rpcs *RPCServer) DelStore(store string, resp *bool) error {
 	rpcs.ds.DelStore(store)
@@ -68,6 +109,7 @@ func (rpcs *RPCServer) Del(rpcdoc RPCDoc, resp *bool) error {
 	return nil
 }
 
+/*
 func (rpcs *RPCServer) ListenAndServe(host string) {
 	if err := rpc.Register(rpcs); err != nil {
 		log.Fatalf("RPCServer.ListenAndServe() -> rpc.Register() -> %v\n", err)
@@ -89,3 +131,4 @@ func (rpcs *RPCServer) ListenAndServe(host string) {
 		rpc.ServeConn(conn)
 	}
 }
+*/

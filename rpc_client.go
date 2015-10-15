@@ -1,6 +1,7 @@
 package dbdb
 
 import (
+	"encoding/gob"
 	"log"
 	"net/rpc"
 )
@@ -10,6 +11,10 @@ type RPCClient struct {
 }
 
 func NewRPCClient(dsn string) *RPCClient {
+
+	// register some missing types...
+	gob.Register([]interface{}(nil))
+
 	conn, err := rpc.Dial("tcp", dsn)
 	if err != nil {
 		log.Fatalf("NewRPCClient() -> rpc.Dial() -> %v\n", err)
@@ -19,32 +24,43 @@ func NewRPCClient(dsn string) *RPCClient {
 	}
 }
 
-func (rpcc *RPCClient) AddStore(store string) (*bool, error) {
-	var ok *bool
+func (rpcc *RPCClient) AddStore(store string) (bool, error) {
+	var ok bool
 	err := rpcc.conn.Call("RPCServer.AddStore", store, &ok)
 	return ok, err
 }
 
+func (rpcc *RPCClient) HasStore(store string) (bool, error) {
+	var ok bool
+	err := rpcc.conn.Call("RPCServer.HasStore", store, &ok)
+	return ok, err
+}
+
+/*
 func (rpcc *RPCClient) GetStore(store string) (*Store, error) {
 	var st *Store
 	err := rpcc.conn.Call("RPCServer.GetStore", store, &st)
+	if err != nil {
+		log.Printf("RPCClient.GetStore() -> (%+T) %+#v\n", err, err)
+	}
 	return st, err
 }
+*/
 
-func (rpcc *RPCClient) DelStore(store string) (*bool, error) {
-	var ok *bool
+func (rpcc *RPCClient) DelStore(store string) (bool, error) {
+	var ok bool
 	err := rpcc.conn.Call("RPCServer.DelStore", store, &ok)
 	return ok, err
 }
 
-func (rpcc *RPCClient) Add(rpcdoc RPCDoc) (*uint64, error) {
-	var docid *uint64
+func (rpcc *RPCClient) Add(rpcdoc RPCDoc) (uint64, error) {
+	var docid uint64
 	err := rpcc.conn.Call("RPCServer.Add", rpcdoc, &docid)
 	return docid, err
 }
 
-func (rpcc *RPCClient) Set(rpcdoc RPCDoc) (*bool, error) {
-	var ok *bool
+func (rpcc *RPCClient) Set(rpcdoc RPCDoc) (bool, error) {
+	var ok bool
 	err := rpcc.conn.Call("RPCServer.Set", rpcdoc, &ok)
 	return ok, err
 }
@@ -55,8 +71,8 @@ func (rpcc *RPCClient) Get(rpcdoc RPCDoc) (*Doc, error) {
 	return doc, err
 }
 
-func (rpcc *RPCClient) Del(rpcdoc RPCDoc) (*bool, error) {
-	var ok *bool
+func (rpcc *RPCClient) Del(rpcdoc RPCDoc) (bool, error) {
+	var ok bool
 	err := rpcc.conn.Call("RPCServer.Del", rpcdoc, &ok)
 	return ok, err
 }

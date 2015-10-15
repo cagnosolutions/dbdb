@@ -1,41 +1,64 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 
 	"github.com/cagnosolutions/dbdb"
 )
 
+type User struct {
+	Name   []string
+	Age    int
+	Active bool
+}
+
+var store = "users"
+
 func main() {
-	log.Println("RPC Client Dialing (127.0.0.1:9999)...")
+
+	gob.Register([]interface{}(nil))
+
+	// connect to server
 	rpcc := dbdb.NewRPCClient("127.0.0.1:9999")
 
-	store := "rpcstore"
-
-	if _, err := rpcc.GetStore(store); err != nil {
-		if ok, err := rpcc.AddStore(store); !(*ok) {
+	// check if store exists...
+	if ok, _ := rpcc.HasStore(store); !ok {
+		// if not, create it
+		if ok, err := rpcc.AddStore(store); !ok {
 			log.Fatal("rpcc.AddStore() -> ", err)
 		}
 	}
 
-	rpcdoc := dbdb.RPCDoc{
-		Store: store,
-		DocId: 0,
-		DocVal: map[string]interface{}{
-			"name":   []string{"Scott", "Cagno"},
-			"age":    28,
-			"active": false,
-		},
-	}
-
-	id, err := rpcc.Add(rpcdoc)
+	// add a document
+	id, err := rpcc.Add(dbdb.RPCDoc{store, 0, map[string]interface{}{
+		"Name":   []string{"John", "Doe"},
+		"Age":    28.00,
+		"Active": true,
+	}})
 	if err != nil {
-		log.Fatal("rpcc.Add(rpcdoc) -> ", err)
+		log.Fatal("Error adding document: ", err)
 	}
-	fmt.Printf("rpcc.Add(rpcdoc) -> SUCCESSFULLY ADDED DOCUMENT (%d)\n", id)
+	log.Printf("ID: %d\n", id)
 
+	// get document previous to the one just added...
+	if id > 1 {
+		id = id - 1
+	}
+	doc, err := rpcc.Get(dbdb.RPCDoc{store, uint64(id), nil})
+	if err != nil {
+		log.Fatal("Error getting document: ", err)
+	} else {
+		fmt.Printf("Successfully got doc as map: %+#v\n", doc)
+		var u User
+		doc.As(&u)
+		fmt.Printf("Successfully got doc as struct: %+#v\n", u)
+	}
+
+	// close connection
 	if err := rpcc.Close(); err != nil {
 		log.Fatal("rpcc.Close() -> ", err)
 	}
+
 }
