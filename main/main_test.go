@@ -112,9 +112,11 @@ func TestGetAllStoreStats(t *testing.T) {
 	if count != 5 {
 		t.Errorf("TestGetAllStoreStats() -> count != 5, was %d\n", count)
 	}
+	fmt.Println("===== GetAllStoreStats() =====")
 	for _, stat := range stats {
 		fmt.Printf("%+v\n", *stat)
 	}
+	fmt.Printf("\n\n")
 }
 
 func TestGetStoreStat(t *testing.T) {
@@ -139,9 +141,11 @@ func TestGetAll1(t *testing.T) {
 	if docs == nil || len(docs) < 1 {
 		t.Errorf("TestGetAll1() -> docs: %+v\n", docs)
 	}
+	fmt.Println("===== GetAll('clients') =====")
 	for _, doc := range docs {
 		fmt.Printf("%+v\n", *doc)
 	}
+	fmt.Printf("\n\n")
 }
 
 func TestGetAll2(t *testing.T) {
@@ -149,9 +153,11 @@ func TestGetAll2(t *testing.T) {
 	if docs == nil || len(docs) != 4 {
 		t.Errorf("TestGetAll1() -> docs: %+v\n", docs)
 	}
+	fmt.Println("===== GetAll('clients', 3, 5, 2, 6) =====")
 	for _, doc := range docs {
 		fmt.Printf("%+v\n", *doc)
 	}
+	fmt.Printf("\n\n")
 }
 
 func TestSet(t *testing.T) {
