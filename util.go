@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strings"
 )
 
 func WriteStore(path string) {
@@ -60,7 +61,7 @@ func ToMap(v interface{}) map[string]interface{} {
 		} else {
 			finalVal = val.Interface()
 		}
-		output[field.Name] = finalVal // TODO: force field.Name to lower-case at this point...
+		output[strings.ToLower(field.Name)] = finalVal
 	}
 	return output
 }
@@ -95,7 +96,7 @@ func ToStruct(m map[string]interface{}, ptr interface{}) error {
 		return fmt.Errorf("Expected pointer didn't get one...")
 	}
 	for mFld, mVal := range m {
-		setField(structVal.Elem(), mFld, mVal) // TODO: force mFld to title-case at this point...
+		setField(structVal.Elem(), strings.Title(mFld), mVal)
 	}
 	return nil
 }

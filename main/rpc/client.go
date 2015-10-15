@@ -8,13 +8,14 @@ import (
 	"github.com/cagnosolutions/dbdb"
 )
 
-type User struct {
-	Name   []string
-	Age    int
-	Active bool
+type Widget struct {
+	Id        uint32
+	Name      string
+	Relations []uint32
+	Reorder   bool
 }
 
-var store = "users"
+var store = "widgets"
 
 func main() {
 
@@ -33,9 +34,10 @@ func main() {
 
 	// add a document
 	id, err := rpcc.Add(dbdb.RPCDoc{store, 0, map[string]interface{}{
-		"Name":   []string{"John", "Doe"},
-		"Age":    28.00,
-		"Active": true,
+		"id":        uint32(12345),
+		"name":      "My Awesome Widget",
+		"relations": []uint32{23, 4382, 43, 329, 3124},
+		"reorder":   true,
 	}})
 	if err != nil {
 		log.Fatal("Error adding document: ", err)
@@ -51,9 +53,9 @@ func main() {
 		log.Fatal("Error getting document: ", err)
 	} else {
 		fmt.Printf("Successfully got doc as map: %+#v\n", doc)
-		var u User
-		doc.As(&u)
-		fmt.Printf("Successfully got doc as struct: %+#v\n", u)
+		var w Widget
+		doc.As(&w)
+		fmt.Printf("Successfully got doc as struct: %+#v\n", w)
 	}
 
 	// close connection

@@ -8,7 +8,6 @@ import (
 
 type DataStore struct {
 	Stores map[string]*Store
-	//Server    *Server
 	sync.RWMutex
 }
 
@@ -28,13 +27,6 @@ func NewDataStore() *DataStore {
 	}
 	return ds
 }
-
-/*
-func (ds *DataStore) TCPListen(port string) {
-	ds.Server = NewServer(ds)
-	ds.Server.ListenAndServe(port)
-}
-*/
 
 func (ds *DataStore) AddStore(name string) {
 	if _, ok := ds.GetStore(name); !ok {
