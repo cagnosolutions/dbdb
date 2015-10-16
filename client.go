@@ -36,7 +36,7 @@ func (c *Client) Disconnect() error {
 
 func (c *Client) GetAllStoreStats() []*StoreStat {
 	var stats []*StoreStat
-	Log(c.conn.Call(Server("GetAllStoreStats"), nil, &stats))
+	Log(c.conn.Call(Server("GetAllStoreStats"), struct{}{}, &stats))
 	return stats
 }
 
@@ -81,7 +81,7 @@ func (c *Client) Set(name string, id uint64, val interface{}) bool {
 		DocId:  id,
 		DocVal: ToMap(val),
 	}
-	Log(c.conn.Call(Server("Add"), rpcdoc, &ok))
+	Log(c.conn.Call(Server("Set"), rpcdoc, &ok))
 	return ok
 }
 

@@ -60,17 +60,35 @@ func main() {
 		}
 	*/
 
-	docs, err := rpcc.GetAll(store, uint64(3), uint64(1), uint64(4), uint64(2))
+	/*docs, err := rpcc.GetAll(store, uint64(3), uint64(1), uint64(4), uint64(2))
 	if err != nil {
 		log.Fatal("Error getting all documents: ", err)
 	}
 	for _, doc := range docs {
 		fmt.Printf("Doc: %v\n", doc)
+	}*/
+	stats, err := rpcc.GetAllStoreStats()
+	if err != nil {
+		log.Fatal("Error getting all stats: ", err)
 	}
-
+	for _, stat := range stats {
+		fmt.Printf("Stat: %v\n", stat)
+	}
 	// close connection
 	if err := rpcc.Close(); err != nil {
 		log.Fatal("rpcc.Close() -> ", err)
 	}
 
+	// new Client
+	/*rpc := dbdb.NewClient("127.0.0.1:9999")
+	if err := rpc.Connect("127.0.0.1:9999"); err != nil {
+		log.Fatal(err)
+	}
+
+	stats := rpc.GetAllStoreStats()
+	for _, stat := range stats {
+		fmt.Printf("Stat: %v\n", stat)
+	}
+
+	rpc.Disconnect()*/
 }

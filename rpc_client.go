@@ -26,7 +26,7 @@ func NewRPCClient(dsn string) *RPCClient {
 
 func (rpcc *RPCClient) GetAllStoreStats() ([]*StoreStat, error) {
 	var stats []*StoreStat
-	err := rpcc.conn.Call("RPCServer.GetAllStoreStats", nil, &stats)
+	err := rpcc.conn.Call("RPCServer.GetAllStoreStats", struct{}{}, &stats)
 	return stats, err
 }
 
