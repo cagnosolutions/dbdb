@@ -22,6 +22,7 @@ type Walker struct {
 	Stores   map[string][]string
 }
 
+// walks the db root and gathers all the stores/folders
 func (w *Walker) Texas(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		return err
@@ -36,6 +37,8 @@ func (w *Walker) Texas(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+// takes folder/store as key and walks files/docs...
+// returns list of files/docs in this folder/store
 func (w *Walker) Ranger(key string) []string {
 	var ss []string
 	filepath.Walk(w.StartDir+"/"+key, func(path string, info os.FileInfo, err error) error {

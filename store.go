@@ -11,6 +11,25 @@ import (
 	"sync/atomic"
 )
 
+type StoreStat struct {
+	Name     string
+	Id, Docs uint64
+}
+
+type StoreStatSorted []*StoreStat
+
+func (sss StoreStatSorted) Len() int {
+	return len(sss)
+}
+
+func (sss StoreStatSorted) Less(i, j int) bool {
+	return sss[i].Name < sss[j].Name
+}
+
+func (sss StoreStatSorted) Swap(i, j int) {
+	sss[i], sss[j] = sss[j], sss[i]
+}
+
 type Store struct {
 	Name    string
 	StoreId uint64
@@ -64,6 +83,11 @@ func (st *Store) Set(id uint64, val interface{}) {
 			WriteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, id), doc)
 		}()
 	}
+}
+
+func (st *Store) Has(id uint64) bool {
+	_, ok := st.Docs.Get(id)
+	return ok
 }
 
 func (st *Store) Get(id uint64) *Doc {

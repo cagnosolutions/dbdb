@@ -108,6 +108,13 @@ func (ds *DataStore) Set(name string, id uint64, val interface{}) {
 	}
 }
 
+func (ds *DataStore) Has(name string, id uint64) bool {
+	if st, ok := ds.GetStore(name); ok {
+		return st.Has(id)
+	}
+	return false
+}
+
 func (ds *DataStore) Get(name string, id uint64) *Doc {
 	if st, ok := ds.GetStore(name); ok {
 		return st.Get(id)

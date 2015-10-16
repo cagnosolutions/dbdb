@@ -1,55 +1,21 @@
 package dbdb
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"reflect"
 	"strings"
 )
 
-func WriteStore(path string) {
-	if err := os.MkdirAll(path, 0755); err != nil {
-		log.Fatalf("WriteStore() -> os.MkdirAll() -> %v\n", err)
-	}
-}
-
-func WriteDoc(filepath string, doc interface{}) {
-	data, err := json.Marshal(doc)
-	if err != nil {
-		log.Fatalf("WriteDoc() -> %v\n", err)
-	}
-	if err := ioutil.WriteFile(filepath, data, 0644); err != nil {
-		log.Fatalf("WriteDoc() -> ioutil.WriteFile() -> %v\n", err)
-	}
-}
-
-func DeleteStore(path string) {
-	if err := os.Remove(path); err != nil {
-		log.Fatalf("DeleteStore() -> os.Remove() -> %v\n", err)
-	}
-}
-
-func DeleteDoc(filepath string) {
-	if err := os.Remove(filepath); err != nil {
-		log.Fatalf("DeleteDoc() -> os.Remove() -> %v\n", err)
-	}
-}
-
+// used to transform a struct into a map
 func ToMap(v interface{}) map[string]interface{} {
-
 	value := reflect.ValueOf(v)
 	if value.Kind() == reflect.Ptr {
 		value = value.Elem()
 	}
-
-	// if v is map[string]interface{} return
 	if value.Type().String() == "map[string]interface {}" {
 		return v.(map[string]interface{})
 	}
-	
 	if value.Kind() != reflect.Struct {
 		log.Fatalf("ToMap() -> value must be %q or %q", "struct", "&struct")
 	}
@@ -73,6 +39,7 @@ func ToMap(v interface{}) map[string]interface{} {
 	return output
 }
 
+// helper used to check if current interface is a struct
 func isStruct(s interface{}) (interface{}, bool) {
 	v := reflect.ValueOf(s)
 	if v.Kind() == reflect.Ptr {
@@ -84,6 +51,7 @@ func isStruct(s interface{}) (interface{}, bool) {
 	return v.Interface(), v.Kind() == reflect.Struct
 }
 
+// helper used to gather and return all exported struct fields
 func structFields(value reflect.Value) []reflect.StructField {
 	t := value.Type()
 	var f []reflect.StructField
@@ -97,6 +65,7 @@ func structFields(value reflect.Value) []reflect.StructField {
 	return f
 }
 
+// used to transform a map into a struct
 func ToStruct(m map[string]interface{}, ptr interface{}) error {
 	structVal := reflect.ValueOf(ptr)
 	if structVal.Kind() != reflect.Ptr || structVal.IsNil() {
@@ -108,6 +77,7 @@ func ToStruct(m map[string]interface{}, ptr interface{}) error {
 	return nil
 }
 
+// helper used to match map fields up with the supplied struct's fields
 func setField(structVal reflect.Value, mFld string, mVal interface{}) {
 	fld := structVal.FieldByName(mFld)
 	if fld.IsValid() && fld.CanSet() {
@@ -120,6 +90,7 @@ func setField(structVal reflect.Value, mFld string, mVal interface{}) {
 	}
 }
 
+// helper used to marshal special cases of floats back into struct specific types
 func setNumber(sv, mv reflect.Value) {
 	switch sv.Kind() {
 	case reflect.Float32:
@@ -131,6 +102,7 @@ func setNumber(sv, mv reflect.Value) {
 	}
 }
 
+// helper used to check if a particular reflect kind is a float
 func isFloat(k reflect.Kind) bool {
 	if k == reflect.Float32 || k == reflect.Float64 {
 		return true

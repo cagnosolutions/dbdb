@@ -7,8 +7,19 @@ import (
 )
 
 func init() {
-	// might not work, maybe move to new client
 	gob.Register([]interface{}(nil))
+}
+
+// helper used to wrap up the rpc caller method string
+func RPC(method string) string {
+	return "RPC." + method
+}
+
+// helper used to wrap up Call, and log an errors
+func Log(err error) {
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 type Client struct {
@@ -16,7 +27,7 @@ type Client struct {
 	State bool
 }
 
-func NewClient(dsn string) *Client {
+func NewClient() *Client {
 	return &Client{State: false}
 }
 
@@ -36,31 +47,31 @@ func (c *Client) Disconnect() error {
 
 func (c *Client) GetAllStoreStats() []*StoreStat {
 	var stats []*StoreStat
-	Log(c.conn.Call(Server("GetAllStoreStats"), struct{}{}, &stats))
+	Log(c.conn.Call(RPC("GetAllStoreStats"), struct{}{}, &stats))
 	return stats
 }
 
 func (c *Client) GetStoreStat(name string) *StoreStat {
 	var stat *StoreStat
-	Log(c.conn.Call(Server("GetStoreStat"), name, &stat))
+	Log(c.conn.Call(RPC("GetStoreStat"), name, &stat))
 	return stat
 }
 
 func (c *Client) HasStore(name string) bool {
 	var ok bool
-	Log(c.conn.Call(Server("HasStore"), name, &ok))
+	Log(c.conn.Call(RPC("HasStore"), name, &ok))
 	return ok
 }
 
 func (c *Client) DelStore(name string) bool {
 	var ok bool
-	Log(c.conn.Call(Server("DelStore"), name, &ok))
+	Log(c.conn.Call(RPC("DelStore"), name, &ok))
 	return ok
 }
 
 func (c *Client) AddStore(name string) bool {
 	var ok bool
-	Log(c.conn.Call(Server("AddStore"), name, &ok))
+	Log(c.conn.Call(RPC("AddStore"), name, &ok))
 	return ok
 }
 
@@ -70,7 +81,7 @@ func (c *Client) Add(name string, val interface{}) uint64 {
 		Store:  name,
 		DocVal: ToMap(val),
 	}
-	Log(c.conn.Call(Server("Add"), rpcdoc, &id))
+	Log(c.conn.Call(RPC("Add"), rpcdoc, &id))
 	return id
 }
 
@@ -81,7 +92,17 @@ func (c *Client) Set(name string, id uint64, val interface{}) bool {
 		DocId:  id,
 		DocVal: ToMap(val),
 	}
-	Log(c.conn.Call(Server("Set"), rpcdoc, &ok))
+	Log(c.conn.Call(RPC("Set"), rpcdoc, &ok))
+	return ok
+}
+
+func (c *Client) Has(name string, id uint64) bool {
+	var ok bool
+	rpcdoc := RPCDoc{
+		Store: name,
+		DocId: id,
+	}
+	Log(c.conn.Call(RPC("Has"), rpcdoc, &ok))
 	return ok
 }
 
@@ -91,7 +112,7 @@ func (c *Client) Get(name string, id uint64) *Doc {
 		Store: name,
 		DocId: id,
 	}
-	Log(c.conn.Call(Server("Get"), rpcdoc, &doc))
+	Log(c.conn.Call(RPC("Get"), rpcdoc, &doc))
 	return doc
 }
 
@@ -101,7 +122,7 @@ func (c *Client) GetAll(name string, id ...uint64) []*Doc {
 		Store:  name,
 		DocIds: id,
 	}
-	Log(c.conn.Call(Server("GetAll"), rpcdoc, &docs))
+	Log(c.conn.Call(RPC("GetAll"), rpcdoc, &docs))
 	return docs
 }
 
@@ -111,16 +132,6 @@ func (c *Client) Del(name string, id uint64) bool {
 		Store: name,
 		DocId: id,
 	}
-	Log(c.conn.Call(Server("Del"), rpcdoc, &ok))
+	Log(c.conn.Call(RPC("Del"), rpcdoc, &ok))
 	return ok
-}
-
-func Server(method string) string {
-	return "RPCServer." + method
-}
-
-func Log(err error) {
-	if err != nil {
-		log.Println(err)
-	}
 }
