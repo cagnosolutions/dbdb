@@ -12,7 +12,7 @@ func init() {
 
 // helper used to wrap up the rpc caller method string
 func RPC(method string) string {
-	return "RPC." + method
+	return "Server." + method
 }
 
 // helper used to wrap up Call, and log an errors
