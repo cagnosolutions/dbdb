@@ -32,7 +32,11 @@ func Serve(ds *DataStore, port string) {
 			log.Printf("error accepting conn: %v\n", err)
 			continue
 		}
-		rpc.ServeConn(conn)
+		go rpc.ServeConn(conn)
+		//go func(){
+		//	handle auth, if success then...
+		//	rpc.ServeConn(conn)
+		//}()
 	}
 }
 
