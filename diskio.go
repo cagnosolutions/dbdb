@@ -24,8 +24,8 @@ func WriteDoc(filepath string, doc interface{}) {
 }
 
 func DeleteStore(path string) {
-	if err := os.Remove(path); err != nil {
-		log.Fatalf("DeleteStore() -> os.Remove() -> %v\n", err)
+	if err := os.RemoveAll(path); err != nil {
+		log.Fatalf("DeleteStore() -> os.RemoveAll() -> %v\n", err)
 	}
 }
 
