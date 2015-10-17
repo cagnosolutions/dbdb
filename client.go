@@ -1,8 +1,11 @@
 package dbdb
 
 import (
+	"bufio"
 	"encoding/gob"
+	"fmt"
 	"log"
+	"net"
 	"net/rpc"
 )
 
@@ -31,6 +34,26 @@ func NewClient() *Client {
 	return &Client{State: false}
 }
 
+func (c *Client) Connect(host string, token string) error {
+	conn, err := net.Dial("tcp", host)
+	if err != nil {
+		return err
+	}
+	authtoken := []byte(fmt.Sprintf("authtoken:%s\n", token))
+	if _, err := conn.Write([]byte(authtoken)); err != nil {
+		log.Println(err)
+		return err
+	}
+	resp, _ := bufio.NewReader(conn).ReadString('\n')
+	if resp != "ok\n" {
+		return fmt.Errorf("Error: Failed to authenticate with server\n")
+	}
+	c.conn = rpc.NewClient(conn)
+	c.State = true
+	return nil
+}
+
+/*
 func (c *Client) Connect(dsn string) error {
 	conn, err := rpc.Dial("tcp", dsn)
 	if err == nil {
@@ -39,6 +62,7 @@ func (c *Client) Connect(dsn string) error {
 	}
 	return err
 }
+*/
 
 func (c *Client) Disconnect() error {
 	c.State = false

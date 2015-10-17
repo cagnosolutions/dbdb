@@ -1,18 +1,23 @@
 package dbdb
 
 import (
+	"bufio"
 	"encoding/gob"
 	"fmt"
 	"log"
 	"net"
 	"net/rpc"
+	"time"
 )
 
 func init() {
 	gob.Register([]interface{}(nil))
 }
 
-func Serve(ds *DataStore, port string) {
+var AUTHTOKEN string
+
+func Serve(ds *DataStore, port string, token string) {
+	AUTHTOKEN = fmt.Sprintf("authtoken:%s\n", token)
 	srv := NewServer(ds)
 	if err := rpc.Register(srv); err != nil {
 		log.Fatal(err)
@@ -32,12 +37,21 @@ func Serve(ds *DataStore, port string) {
 			log.Printf("error accepting conn: %v\n", err)
 			continue
 		}
-		go rpc.ServeConn(conn)
-		//go func(){
-		//	handle auth, if success then...
-		//	rpc.ServeConn(conn)
-		//}()
+		go HandleConn(conn)
 	}
+}
+
+func HandleConn(conn net.Conn) {
+	auth, _ := bufio.NewReader(conn).ReadString('\n')
+	if auth != AUTHTOKEN {
+		conn.SetDeadline(time.Now())
+		conn.Close()
+		return
+	}
+	if _, err := conn.Write([]byte("ok\n")); err != nil {
+		log.Fatal(err)
+	}
+	rpc.ServeConn(conn)
 }
 
 type Server struct {
