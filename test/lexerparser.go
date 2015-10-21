@@ -10,13 +10,14 @@ import (
 )
 
 var queries = []string{
-	"SELECT * FROM users",
-	"SELECT id, name, email FROM users",
+	//"SELECT * FROM users",
+	//"SELECT id, name, email FROM users",
+	"QUERY users WHERE id ^ `0`, email = `scottiecagno@gmail.com`, name = `Scott Cagno`",
 }
 
 func main() {
 
-	var ast []*dbdb.SelectStatement
+	var ast []*dbdb.QueryStmt
 
 	fmt.Println("Sample select statements...")
 	for _, query := range queries {
@@ -33,6 +34,6 @@ func main() {
 	}
 
 	for _, stmt := range ast {
-		fmt.Printf("%+#v\n", stmt)
+		fmt.Printf("%v\n", stmt)
 	}
 }

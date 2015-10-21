@@ -5,9 +5,13 @@ import (
 	"io"
 )
 
-type SelectStatement struct {
-	Fields    []string
-	TableName string
+type QuerySet struct {
+	Field, Comparator, Value string
+}
+
+type QueryStmt struct {
+	Store string
+	Set   []QuerySet
 }
 
 type buf struct {
@@ -28,16 +32,16 @@ func NewParser(r io.Reader) *Parser {
 }
 
 // returns next token from scanner, if token has been unscanned then read that instead
-func (p *Parser) scan() (tok Token, lit string) {
+func (p *Parser) scan() (Token, string) {
 	// if we have a token in the buffer, return it..
 	if p.buf.n != 0 {
 		p.buf.n = 0
 		return p.buf.tok, p.buf.lit
 	}
 	// else, read next token and save it to the buffer
-	tok, lit = p.s.Scan()
+	tok, lit := p.s.Scan()
 	p.buf.tok, p.buf.lit = tok, lit
-	return
+	return tok, lit
 }
 
 // pushes prev read token back onto the buffer
@@ -46,40 +50,56 @@ func (p *Parser) unscan() {
 }
 
 // scans the next non-whitespace token
-func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
-	tok, lit = p.scan()
+func (p *Parser) scanIgnoreWhitespace() (Token, string) {
+	tok, lit := p.scan()
 	if tok == WS {
 		tok, lit = p.scan()
 	}
-	return
+	return tok, lit
 }
 
-func (p *Parser) Parse() (*SelectStatement, error) {
-	stmt := &SelectStatement{}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != SELECT {
-		return nil, fmt.Errorf("found %q, expected SELECT", lit)
-	}
-	for {
-		// read a field.
-		tok, lit := p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != ASTERISK {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
-		stmt.Fields = append(stmt.Fields, lit)
-		// if next token is not a comma, break loop
-		if tok, _ := p.scanIgnoreWhitespace(); tok != COMMA {
-			p.unscan()
-			break
-		}
-	}
-	// next we should see the "FROM" keyword.
-	if tok, lit := p.scanIgnoreWhitespace(); tok != FROM {
-		return nil, fmt.Errorf("found %q, expected FROM", lit)
+func (p *Parser) Parse() (*QueryStmt, error) {
+	stmt := &QueryStmt{}
+	if tok, lit := p.scanIgnoreWhitespace(); tok != QUERY {
+		return nil, fmt.Errorf("found %q, expected KEYWORD (QUERY)\n", lit)
 	}
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
-		return nil, fmt.Errorf("found %q, expected table name", lit)
+		return nil, fmt.Errorf("found %d, expected IDENT (store name)\n", lit)
 	}
-	stmt.TableName = lit
+	stmt.Store = lit
+	if tok, lit := p.scanIgnoreWhitespace(); tok != WHERE {
+		return nil, fmt.Errorf("found %d, expected KEYWORD (WHERE)\n", lit)
+	}
+	// handle list query sets
+	for {
+		qrySet := QuerySet{}
+		// read field
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok != IDENT {
+			return nil, fmt.Errorf("found %q, expected IDENT (field)\n", lit)
+		}
+		qrySet.Field = lit
+		// read comparitor
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != COMPARITOR {
+			return nil, fmt.Errorf("found %q, expected COMPARITOR (=, <, >)\n", lit)
+		}
+		qrySet.Comparator = lit
+		// read value
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != IDENT {
+			return nil, fmt.Errorf("found %q, expected IDENT (value)\n", lit)
+		}
+		qrySet.Value = lit
+		// add qrySet to stmt
+		stmt.Set = append(stmt.Set, qrySet)
+		// if next token is not a comma, break loop
+		if tok, _ = p.scanIgnoreWhitespace(); tok != COMMA {
+			p.unscan()
+			break
+		}
+		// otherwise, continue to parse sets...
+	}
 	return stmt, nil
 }
