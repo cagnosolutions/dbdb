@@ -18,10 +18,10 @@ func NewDataStore() *DataStore {
 	}
 	if data := Walk("db"); len(data) > 0 {
 		ds.Lock()
-		for store, files := range data {
+		for store, ids := range data {
 			st := NewStore(store)
 			ds.Stores[store] = st
-			st.Load(files)
+			st.Load(ids)
 		}
 		ds.Unlock()
 		runtime.GC()

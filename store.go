@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"sort"
-	"strconv"
-	"strings"
 	"sync/atomic"
 )
 
@@ -43,16 +41,12 @@ func NewStore(Name string) *Store {
 	}
 }
 
-func (st *Store) Load(files []string) {
+func (st *Store) Load(ids []int) {
 	var docid uint64
-	for _, file := range files {
-		info := strings.Split(file, ".")
-		id, err := strconv.ParseUint(info[0], 10, 64)
-		if err != nil || len(info) != 2 {
-			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
-		}
-		docid = id
-		data, err := ioutil.ReadFile("db/" + st.Name + "/" + file)
+	for _, intId := range ids {
+		docid = uint64(intId)
+		file := fmt.Sprintf("db/%s/%d.json", st.Name, docid)
+		data, err := ioutil.ReadFile(file)
 		if err != nil {
 			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
 		}
@@ -60,7 +54,7 @@ func (st *Store) Load(files []string) {
 		if err := json.Unmarshal(data, &doc); err != nil {
 			log.Fatalf("Store.Load() -> error unmarshaling data from file (%v), possible corruption?\n", file)
 		}
-		st.Docs.Set(id, &doc)
+		st.Docs.Set(docid, &doc)
 	}
 	st.StoreId = docid
 }
