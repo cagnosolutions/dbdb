@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"sort"
 	"sync/atomic"
 )
@@ -12,6 +13,8 @@ import (
 type StoreStat struct {
 	Name     string
 	Id, Docs uint64
+	Size     int64
+	Kind     string
 }
 
 type StoreStatSorted []*StoreStat
@@ -43,8 +46,8 @@ func NewStore(Name string) *Store {
 
 func (st *Store) Load(ids []int) {
 	var docid uint64
-	for _, intId := range ids {
-		docid = uint64(intId)
+	for _, id := range ids {
+		docid = uint64(id)
 		file := fmt.Sprintf("db/%s/%d.json", st.Name, docid)
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -57,6 +60,22 @@ func (st *Store) Load(ids []int) {
 		st.Docs.Set(docid, &doc)
 	}
 	st.StoreId = docid
+}
+
+func (st *Store) Size() (int64, string) {
+	var size int64
+	for i := 1; uint64(i) < st.StoreId; i++ {
+		if info, err := os.Lstat(fmt.Sprintf("db/%s/%d.json", st.Name, i)); err == nil {
+			size += info.Size()
+		}
+	}
+	switch {
+	case size > int64(1<<20):
+		return size / int64(1<<20), "MB"
+	case size > int64(1<<10):
+		return size / int64(1<<10), "KB"
+	}
+	return size, "B"
 }
 
 func (st *Store) Add(val interface{}) uint64 {
