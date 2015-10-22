@@ -11,10 +11,10 @@ import (
 )
 
 type StoreStat struct {
-	Name     string
-	Id, Docs uint64
-	Size     int64
-	Kind     string
+	Name       string
+	Id, Docs   uint64
+	Size       int64
+	SizePretty string
 }
 
 type StoreStatSorted []*StoreStat
@@ -71,11 +71,11 @@ func (st *Store) Size() (int64, string) {
 	}
 	switch {
 	case size > int64(1<<20):
-		return size / int64(1<<20), "MB"
+		return size, fmt.Sprintf("%d MB", size/int64(1<<20))
 	case size > int64(1<<10):
-		return size / int64(1<<10), "KB"
+		return size, fmt.Sprintf("%d KB", size/int64(1<<10))
 	}
-	return size, "B"
+	return size, fmt.Sprintf("%d B", size)
 }
 
 func (st *Store) Add(val interface{}) uint64 {
