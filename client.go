@@ -45,7 +45,7 @@ func (c *Client) Connect(host string, token string) error {
 		return err
 	}
 	resp, _ := bufio.NewReader(conn).ReadString('\n')
-	if resp != "ok\n" {
+	if resp != "1\n" {
 		return fmt.Errorf("Error: Failed to authenticate with server\n")
 	}
 	c.conn = rpc.NewClient(conn)
