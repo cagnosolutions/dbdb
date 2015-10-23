@@ -11,10 +11,9 @@ import (
 )
 
 type StoreStat struct {
-	Name       string
-	Id, Docs   uint64
-	Size       int64
-	SizePretty string
+	Name     string
+	Id, Docs uint64
+	Size     float64
 }
 
 type StoreStatSorted []*StoreStat
@@ -62,20 +61,14 @@ func (st *Store) Load(ids []int) {
 	st.StoreId = docid
 }
 
-func (st *Store) Size() (int64, string) {
+func (st *Store) Size() float64 {
 	var size int64
 	for i := 1; uint64(i) < st.StoreId; i++ {
 		if info, err := os.Lstat(fmt.Sprintf("db/%s/%d.json", st.Name, i)); err == nil {
 			size += info.Size()
 		}
 	}
-	switch {
-	case size > int64(1<<20):
-		return size, fmt.Sprintf("%.2f MB", float64(size)/float64(1<<20))
-	case size > int64(1<<10):
-		return size, fmt.Sprintf("%.2f KB", float64(size)/float64(1<<10))
-	}
-	return size, fmt.Sprintf("%d B", size)
+	return float64(size / 1 << 10)
 }
 
 func (st *Store) Add(val interface{}) uint64 {

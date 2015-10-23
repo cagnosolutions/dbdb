@@ -6,17 +6,17 @@ import (
 	"github.com/cagnosolutions/dbdb"
 )
 
-var auth string = "foobar"
+var auth string = "9999"
 
 func main() {
 	client := dbdb.NewClient()
-	if err := client.Connect("localhost:9999", auth); err != nil {
+	if err := client.Connect("192.168.0.81:9999", auth); err != nil {
 		log.Fatal(err)
 	}
-	if ok := client.HasStore("users"); !ok {
-		client.AddStore("users")
+	if ok := client.HasStore("foobar"); !ok {
+		client.AddStore("foobar")
 	}
-	client.Add("users", map[string]interface{}{
+	client.Add("foobar", map[string]interface{}{
 		"id":     1,
 		"name":   []string{"Scott", "Cagno"},
 		"email":  "scottiecagno@gmail.com",

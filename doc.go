@@ -1,12 +1,21 @@
 package dbdb
 
+import "time"
+
 type Doc struct {
-	Id   uint64                 `json:"id"`
-	Data map[string]interface{} `json:"data"`
+	Id       uint64                 `json:"id"`
+	Created  int64                  `json:"created"`
+	Modified int64                  `json:"modified"`
+	Data     map[string]interface{} `json:"data"`
 }
 
 func NewDoc(id uint64, data interface{}) *Doc {
-	doc := &Doc{Id: id}
+	time := time.Now().Unix()
+	doc := &Doc{
+		Id:       id,
+		Created:  time,
+		Modified: time,
+	}
 	switch data.(type) {
 	case map[string]interface{}:
 		doc.Data = data.(map[string]interface{})
@@ -23,6 +32,7 @@ func (d *Doc) Update(data interface{}) {
 	default:
 		d.Data = ToMap(data)
 	}
+	d.Modified = time.Now().Unix()
 }
 
 func (d *Doc) As(v interface{}) error {

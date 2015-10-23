@@ -33,13 +33,11 @@ func (ds *DataStore) GetAllStoreStats() []*StoreStat {
 	var stats StoreStatSorted
 	ds.RLock()
 	for name, store := range ds.Stores {
-		size, pretty := store.Size()
 		stats = append(stats, &StoreStat{
-			Name:       name,
-			Id:         store.StoreId,
-			Docs:       store.Docs.Size(),
-			Size:       size,
-			SizePretty: pretty,
+			Name: name,
+			Id:   store.StoreId,
+			Docs: store.Docs.Size(),
+			Size: store.Size(),
 		})
 	}
 	ds.RUnlock()
@@ -51,13 +49,11 @@ func (ds *DataStore) GetStoreStat(name string) *StoreStat {
 	var stat *StoreStat
 	ds.RLock()
 	if st, ok := ds.Stores[name]; ok {
-		size, pretty := st.Size()
 		stat = &StoreStat{
-			Name:       st.Name,
-			Id:         st.StoreId,
-			Docs:       st.Docs.Size(),
-			Size:       size,
-			SizePretty: pretty,
+			Name: st.Name,
+			Id:   st.StoreId,
+			Docs: st.Docs.Size(),
+			Size: st.Size(),
 		}
 	}
 	ds.RUnlock()
