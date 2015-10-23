@@ -68,7 +68,7 @@ func (st *Store) Size() float64 {
 			size += info.Size()
 		}
 	}
-	return float64(size / 1 << 10)
+	return toFixed(float64(size/(1<<10)), 2)
 }
 
 func (st *Store) Add(val interface{}) uint64 {

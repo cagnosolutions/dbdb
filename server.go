@@ -14,10 +14,9 @@ func init() {
 	gob.Register([]interface{}(nil))
 }
 
-var AUTHTOKEN string
+var authtoken string
 
 func Serve(ds *DataStore, port string, token string) {
-	AUTHTOKEN = fmt.Sprintf("authtoken:%s\n", token)
 	srv := NewServer(ds)
 	if err := rpc.Register(srv); err != nil {
 		log.Fatal(err)
@@ -31,26 +30,35 @@ func Serve(ds *DataStore, port string, token string) {
 		log.Fatal(err)
 	}
 	log.Printf("Listening for connections on %s...", port)
+	authtoken = fmt.Sprintf("authtoken:%s\n", token)
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			log.Printf("error accepting conn: %v\n", err)
 			continue
 		}
-		go HandleConn(conn)
+		if CanHandle(conn, authtoken) {
+			go HandleConn(conn)
+		}
 	}
 }
 
-func HandleConn(conn net.Conn) {
+func CanHandle(conn net.Conn, token string) bool {
 	auth, _ := bufio.NewReader(conn).ReadString('\n')
-	if auth != AUTHTOKEN {
+	if auth != token {
 		conn.SetDeadline(time.Now())
 		conn.Close()
-		return
+		return false
 	}
-	if _, err := conn.Write([]byte("ok\n")); err != nil {
+	if _, err := conn.Write([]byte{'1', '\n'}); err != nil {
 		log.Fatal(err)
 	}
+	return true
+}
+
+func HandleConn(conn net.Conn) {
+	// enter infinite loop and handle each request
+	// on a tcp level so we can handle deadlines, etc...
 	rpc.ServeConn(conn)
 }
 
