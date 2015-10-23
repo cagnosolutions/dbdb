@@ -34,35 +34,33 @@ func NewClient() *Client {
 	return &Client{State: false}
 }
 
-func (c *Client) Connect(host string, token string) error {
-	conn, err := net.Dial("tcp", host)
+func CanConnect(conn net.Conn, token string) bool {
+	_, err := conn.Write([]byte(fmt.Sprintf("authtoken:%s\n", token)))
 	if err != nil {
-		return err
-	}
-	authtoken := []byte(fmt.Sprintf("authtoken:%s\n", token))
-	if _, err := conn.Write([]byte(authtoken)); err != nil {
-		log.Println(err)
-		return err
+		log.Printf("client: %v\n", err)
+		return false
 	}
 	resp, _ := bufio.NewReader(conn).ReadString('\n')
 	if resp != "1\n" {
-		return fmt.Errorf("Error: Failed to authenticate with server\n")
+		log.Println("client: failed to authenticate with server")
+		return false
 	}
-	c.conn = rpc.NewClient(conn)
-	c.State = true
-	return nil
+	return true
 }
 
-/*
-func (c *Client) Connect(dsn string) error {
-	conn, err := rpc.Dial("tcp", dsn)
-	if err == nil {
-		c.conn = conn
-		c.State = true
+func (c *Client) Connect(host string, token string) bool {
+	conn, err := net.Dial("tcp", host)
+	if err != nil {
+		log.Printf("client: %v\n", err)
+		return false
 	}
-	return err
+	if CanConnect(conn, token) {
+		c.State = true
+		c.conn = rpc.NewClient(conn)
+		return true
+	}
+	return false
 }
-*/
 
 func (c *Client) Disconnect() error {
 	c.State = false
