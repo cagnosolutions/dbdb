@@ -65,6 +65,9 @@ func (c *Client) Disconnect() error {
 }
 
 func (c *Client) Alive() bool {
+	if c.conn == nil {
+		return false
+	}
 	var nothing *struct{}
 	err := c.conn.Call(RPC("Alive"), struct{}{}, &nothing)
 	if err != nil {
