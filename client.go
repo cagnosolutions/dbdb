@@ -26,12 +26,11 @@ func Log(err error) {
 }
 
 type Client struct {
-	conn  *rpc.Client
-	State bool
+	conn *rpc.Client
 }
 
 func NewClient() *Client {
-	return &Client{State: false}
+	return &Client{}
 }
 
 func CanConnect(conn net.Conn, token string) bool {
@@ -55,7 +54,6 @@ func (c *Client) Connect(host string, token string) bool {
 		return false
 	}
 	if CanConnect(conn, token) {
-		c.State = true
 		c.conn = rpc.NewClient(conn)
 		return true
 	}
@@ -63,8 +61,16 @@ func (c *Client) Connect(host string, token string) bool {
 }
 
 func (c *Client) Disconnect() error {
-	c.State = false
 	return c.conn.Close()
+}
+
+func (c *Client) Alive() bool {
+	var nothing *struct{}
+	err := c.conn.Call(RPC("Alive"), struct{}{}, &nothing)
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func (c *Client) GetAllStoreStats() []*StoreStat {

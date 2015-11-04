@@ -111,6 +111,10 @@ func NewServer(ds *DataStore) *Server {
 //EXAMPLE...
 //func (*Receiver) DoNothing(_, _ *struct{}), error
 
+func (s *Server) Alive(_, _ *struct{}) error {
+	return nil
+}
+
 func (s *Server) GetAllStoreStats(_ struct{}, resp *[]*StoreStat) error {
 	stats := s.ds.GetAllStoreStats()
 	*resp = stats

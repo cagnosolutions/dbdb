@@ -10,7 +10,7 @@ var auth string = "foobar"
 
 func main() {
 	client := dbdb.NewClient()
-	if ok := client.Connect("192.168.0.81:9999", auth); !ok {
+	if ok := client.Connect("127.0.0.1:31337", auth); !ok {
 		log.Fatal("error connecting to host...")
 	}
 	if ok := client.HasStore("foobar"); !ok {
