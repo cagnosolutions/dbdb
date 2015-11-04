@@ -69,33 +69,29 @@ func GetCodec(conn io.ReadWriteCloser) rpc.ServerCodec {
 }
 
 func HandleConn(conn net.Conn) {
-	log.Println("Inside Server.HandleConn(conn net.Conn), deferring closing...")
+	//log.Println("Inside Server.HandleConn(conn net.Conn), deferring closing...")
 	codec := GetCodec(conn)
 	defer func() {
-		log.Println("Closing")
+		//log.Println("Closing")
 		if err := codec.Close(); err != nil {
 			log.Printf("server: %v\n", err)
 		}
 	}()
-	log.Printf("Generated new codec for this connection (%s)\n", conn.RemoteAddr().String())
-	log.Println("Entering blocking network event loop...")
+	//log.Printf("Generated new codec for this connection (%s)\n", conn.RemoteAddr().String())
+	//log.Println("Entering blocking network event loop...")
 	for {
-		log.Printf("Blocking: waiting for a request....\n")
-
+		//log.Printf("Blocking: waiting for a request....\n")
 		err := rpc.ServeRequest(codec)
-
-		timestamp := time.Now().UnixNano()
-		log.Printf("Got a request from %q...\n", conn.RemoteAddr().String())
-
+		//timestamp := time.Now().UnixNano()
+		//log.Printf("Got a request from %q...\n", conn.RemoteAddr().String())
 		if err != nil {
 			log.Printf("server: %v\n", err)
 			break
 		}
-
-		timestamp2 := time.Now().UnixNano() - timestamp
-		log.Printf("Handled request in %d nanoseconds (%d milliseconds)\n", timestamp2, (timestamp2 / 1000 / 1000))
+		//timestamp2 := time.Now().UnixNano() - timestamp
+		//log.Printf("Handled request in %d nanoseconds (%d milliseconds)\n", timestamp2, (timestamp2 / 1000 / 1000))
 	}
-	log.Println("Not blocking anymore, exited network event loop.")
+	//log.Println("Not blocking anymore, exited network event loop.")
 }
 
 type Server struct {
