@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/gob"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/rpc"
@@ -56,10 +57,33 @@ func CanHandle(conn net.Conn, token string) bool {
 	return true
 }
 
+func GetCodec(conn io.ReadWriteCloser) rpc.ServerCodec {
+	buf := bufio.NewWriter(conn)
+	srv := &gobServerCodec{
+		rwc:    conn,
+		dec:    gob.NewDecoder(conn),
+		enc:    gob.NewEncoder(buf),
+		encBuf: buf,
+	}
+	return srv
+}
+
 func HandleConn(conn net.Conn) {
-	// enter infinite loop and handle each request
-	// on a tcp level so we can handle deadlines, etc...
-	rpc.ServeConn(conn)
+	codec := GetCodec(conn)
+	defer func() {
+		if err := codec.Close(); err != nil {
+			log.Printf("server: %v\n", err)
+		}
+	}()
+	for {
+		timestamp := time.Now().UnixNano()
+		fmt.Printf("%s made a call... ", conn.RemoteAddr().String())
+		if err := rpc.ServeRequest(codec); err != nil {
+			log.Printf("server: %v\n", err)
+			break
+		}
+		fmt.Printf("successfully. (took %d nanoseconds)\n", time.Now().UnixNano()-timestamp)
+	}
 }
 
 type Server struct {

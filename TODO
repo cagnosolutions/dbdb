@@ -3,3 +3,10 @@ TODO's That Need To Be Worked On
 *Query methods, both string searching on disk, and key/value filtering.
 *Possibly add ART (Adaptive Radix Tree) indexes to database
 *Add unit tests for rpc client and server
+
+
+*** finish network event loop
+*** status "ping"
+*** lexer and paser need fully implemented into server side func
+*** db.GetAll() --> {"store":[{doc-data}, {docd-ata}...]}
+*** db.Flush() --> wipes entire database. consider dumping a backup tar before doing this action.

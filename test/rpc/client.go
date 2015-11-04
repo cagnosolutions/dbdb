@@ -6,12 +6,12 @@ import (
 	"github.com/cagnosolutions/dbdb"
 )
 
-var auth string = "9999"
+var auth string = "foobar"
 
 func main() {
 	client := dbdb.NewClient()
-	if err := client.Connect("192.168.0.81:9999", auth); err != nil {
-		log.Fatal(err)
+	if ok := client.Connect("192.168.0.81:9999", auth); !ok {
+		log.Fatal("error connecting to host...")
 	}
 	if ok := client.HasStore("foobar"); !ok {
 		client.AddStore("foobar")
