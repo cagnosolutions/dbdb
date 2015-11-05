@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"sort"
 	"sync"
@@ -66,6 +67,17 @@ func (ds *DataStore) Export() (string, error) {
 	ds.Unlock()
 	defer runtime.GC()
 	return string(data), nil
+}
+
+func (ds *DataStore) ClearAll() {
+	ds.Lock()
+	ds.Stores = nil
+	runtime.GC()
+	ds.Stores = make(map[string]*Store, 0)
+	if err := os.RemoveAll("db"); err != nil {
+		log.Println("error clearing data: ", err)
+	}
+	ds.Unlock()
 }
 
 func (ds *DataStore) GetAllStoreStats() []*StoreStat {

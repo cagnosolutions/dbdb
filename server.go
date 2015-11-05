@@ -127,6 +127,11 @@ func (s *Server) Export(_ struct{}, resp *string) error {
 	return err
 }
 
+func (s *Server) ClearAll(_, _ *struct{}) error {
+	s.ds.ClearAll()
+	return nil
+}
+
 func (s *Server) GetAllStoreStats(_ struct{}, resp *[]*StoreStat) error {
 	stats := s.ds.GetAllStoreStats()
 	*resp = stats

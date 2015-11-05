@@ -64,6 +64,18 @@ func (c *Client) Disconnect() error {
 	return c.conn.Close()
 }
 
+func (c *Client) Alive() bool {
+	if c.conn == nil {
+		return false
+	}
+	var nothing *struct{}
+	err := c.conn.Call(RPC("Alive"), struct{}{}, &nothing)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func (c *Client) Import(data string) {
 	var nothing *struct{}
 	Log(c.conn.Call(RPC("Import"), data, &nothing))
@@ -75,16 +87,9 @@ func (c *Client) Export() string {
 	return data
 }
 
-func (c *Client) Alive() bool {
-	if c.conn == nil {
-		return false
-	}
+func (c *Client) ClearAll() {
 	var nothing *struct{}
-	err := c.conn.Call(RPC("Alive"), struct{}{}, &nothing)
-	if err != nil {
-		return false
-	}
-	return true
+	Log(c.conn.Call(RPC("ClearAll"), struct{}{}, &nothing))
 }
 
 func (c *Client) GetAllStoreStats() []*StoreStat {
