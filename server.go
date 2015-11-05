@@ -15,7 +15,10 @@ func init() {
 	gob.Register([]interface{}(nil))
 }
 
-var authtoken string
+var (
+	authtoken    string
+	CONN_TIMEOUT = 900 // 900 seconds = 15 minutes
+)
 
 func Serve(ds *DataStore, port string, token string) {
 	srv := NewServer(ds)
@@ -88,9 +91,11 @@ func HandleConn(conn net.Conn) {
 			log.Printf("server: %v\n", err)
 			break
 		}
+		conn.SetDeadline(time.Now().Add(CONN_TIMEOUT * time.Second))
 		//timestamp2 := time.Now().UnixNano() - timestamp
 		//log.Printf("Handled request in %d nanoseconds (%d milliseconds)\n", timestamp2, (timestamp2 / 1000 / 1000))
 	}
+	conn.SetDeadline(time.Now())
 	//log.Println("Not blocking anymore, exited network event loop.")
 }
 
