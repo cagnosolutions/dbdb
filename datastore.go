@@ -50,10 +50,10 @@ func (ds *DataStore) Import(data string) error {
 
 func (ds *DataStore) Export() (string, error) {
 	ds.Lock()
-	dataStore := make(map[string][]map[string]interface{}, len(ds.Stores))
+	dataStore := make(map[string][]map[string]interface{}, 0)
 	for name, store := range ds.Stores {
 		allDocs := store.GetAll()
-		docData := make([]map[string]interface{}, len(allDocs))
+		docData := make([]map[string]interface{}, 0)
 		for _, doc := range allDocs {
 			docData = append(docData, doc.Data)
 		}
