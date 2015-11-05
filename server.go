@@ -91,7 +91,7 @@ func HandleConn(conn net.Conn) {
 			log.Printf("server: %v\n", err)
 			break
 		}
-		conn.SetDeadline(time.Now().Add(CONN_TIMEOUT * time.Second))
+		conn.SetDeadline(time.Now().Add(time.Duration(CONN_TIMEOUT) * time.Second))
 		//timestamp2 := time.Now().UnixNano() - timestamp
 		//log.Printf("Handled request in %d nanoseconds (%d milliseconds)\n", timestamp2, (timestamp2 / 1000 / 1000))
 	}
