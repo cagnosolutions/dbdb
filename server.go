@@ -116,6 +116,17 @@ func (s *Server) Alive(_, _ *struct{}) error {
 	return nil
 }
 
+func (s *Server) Import(data string, _ *struct{}) error {
+	err := s.ds.Import(data)
+	return err
+}
+
+func (s *Server) Export(_ struct{}, resp *string) error {
+	data, err := s.ds.Export()
+	*resp = data
+	return err
+}
+
 func (s *Server) GetAllStoreStats(_ struct{}, resp *[]*StoreStat) error {
 	stats := s.ds.GetAllStoreStats()
 	*resp = stats

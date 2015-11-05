@@ -61,6 +61,7 @@ func (st *Store) Load(ids []int) {
 	st.StoreId = docid
 }
 
+// size on disk, not document count
 func (st *Store) Size() float64 {
 	var size int64
 	for i := 1; uint64(i) < st.StoreId; i++ {

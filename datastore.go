@@ -1,7 +1,9 @@
 package dbdb
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"runtime"
 	"sort"
 	"sync"
@@ -27,6 +29,43 @@ func NewDataStore() *DataStore {
 		runtime.GC()
 	}
 	return ds
+}
+
+func (ds *DataStore) Import(data string) error {
+	var dataStore map[string][]map[string]interface{}
+	if err := json.Unmarshal([]byte(data), &dataStore); err != nil {
+		log.Println("data import failed: ", err)
+		return err
+	}
+	for store, docs := range dataStore {
+		ds.AddStore(store)
+		for _, doc := range docs {
+			ds.Add(store, doc)
+		}
+	}
+	runtime.GC()
+	return nil
+}
+
+func (ds *DataStore) Export() (string, error) {
+	ds.Lock()
+	dataStore := make(map[string][]map[string]interface{}, len(ds.Stores))
+	for name, store := range ds.Stores {
+		allDocs := store.GetAll()
+		docData := make([]map[string]interface{}, len(allDocs))
+		for _, doc := range allDocs {
+			docData = append(docData, doc.Data)
+		}
+		dataStore[name] = docData
+	}
+	data, err := json.Marshal(dataStore)
+	if err != nil {
+		log.Println("data export failed: ", err)
+		return "", err
+	}
+	ds.Unlock()
+	defer runtime.GC()
+	return string(data), nil
 }
 
 func (ds *DataStore) GetAllStoreStats() []*StoreStat {

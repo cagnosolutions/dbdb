@@ -64,6 +64,17 @@ func (c *Client) Disconnect() error {
 	return c.conn.Close()
 }
 
+func (c *Client) Import(data string) {
+	var nothing *struct{}
+	Log(c.conn.Call(RPC("Import"), data, &nothing))
+}
+
+func (c *Client) Export() string {
+	var data string
+	Log(c.conn.Call(RPC("Export"), struct{}{}, &data))
+	return data
+}
+
 func (c *Client) Alive() bool {
 	if c.conn == nil {
 		return false
