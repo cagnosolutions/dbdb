@@ -32,9 +32,9 @@ func NewDataStore() *DataStore {
 	return ds
 }
 
-func (ds *DataStore) Import(data string) error {
+func (ds *DataStore) Import(data []byte) error {
 	var dataStore map[string][]map[string]interface{}
-	if err := json.Unmarshal([]byte(data), &dataStore); err != nil {
+	if err := json.Unmarshal(data, &dataStore); err != nil {
 		log.Println("data import failed: ", err)
 		return err
 	}
@@ -48,7 +48,7 @@ func (ds *DataStore) Import(data string) error {
 	return nil
 }
 
-func (ds *DataStore) Export() (string, error) {
+func (ds *DataStore) Export() ([]byte, error) {
 	ds.Lock()
 	dataStore := make(map[string][]map[string]interface{}, 0)
 	for name, store := range ds.Stores {
@@ -62,11 +62,11 @@ func (ds *DataStore) Export() (string, error) {
 	data, err := json.Marshal(dataStore)
 	if err != nil {
 		log.Println("data export failed: ", err)
-		return "", err
+		return nil, err
 	}
 	ds.Unlock()
 	defer runtime.GC()
-	return string(data), nil
+	return data, nil
 }
 
 func (ds *DataStore) ClearAll() {

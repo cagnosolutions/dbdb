@@ -116,12 +116,12 @@ func (s *Server) Alive(_, _ *struct{}) error {
 	return nil
 }
 
-func (s *Server) Import(data string, _ *struct{}) error {
+func (s *Server) Import(data []byte, _ *struct{}) error {
 	err := s.ds.Import(data)
 	return err
 }
 
-func (s *Server) Export(_ struct{}, resp *string) error {
+func (s *Server) Export(_ struct{}, resp *[]byte) error {
 	data, err := s.ds.Export()
 	*resp = data
 	return err

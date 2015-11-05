@@ -76,13 +76,13 @@ func (c *Client) Alive() bool {
 	return true
 }
 
-func (c *Client) Import(data string) {
+func (c *Client) Import(data []byte) {
 	var nothing *struct{}
 	Log(c.conn.Call(RPC("Import"), data, &nothing))
 }
 
-func (c *Client) Export() string {
-	var data string
+func (c *Client) Export() []byte {
+	var data []byte
 	Log(c.conn.Call(RPC("Export"), struct{}{}, &data))
 	return data
 }
