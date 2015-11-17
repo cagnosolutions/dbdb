@@ -124,3 +124,9 @@ func (st *Store) Del(id uint64) {
 		DeleteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, id))
 	}()
 }
+
+func (st *Store) Query(stmt map[string][]interface{}) []*Doc {
+	// all docs, sorted
+	docs := st.Docs.GetAll()
+	return docs
+}

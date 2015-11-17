@@ -17,23 +17,33 @@ var queries = []string{
 
 func main() {
 
-	var ast []*dbdb.QueryStmt
+	//var ast []*dbdb.QueryStmt
 
-	fmt.Println("Sample select statements...")
-	for _, query := range queries {
-		fmt.Println(query)
+	query := "QUERY users WHERE id ^ `0`, email = `scottiecagno@gmail.com`, name = `Scott Cagno`"
+	parser := dbdb.NewParser(strings.NewReader(query))
+	stmt, err := parser.Parse()
+	if err != nil && err != io.EOF {
+		log.Fatal(err)
 	}
+	fmt.Printf("%v\n", stmt)
 
-	for _, query := range queries {
-		parser := dbdb.NewParser(strings.NewReader(query))
-		stmt, err := parser.Parse()
-		if err != nil && err != io.EOF {
-			log.Fatal(err)
+	/*
+		fmt.Println("Sample select statements...")
+		for _, query := range queries {
+			fmt.Println(query)
 		}
-		ast = append(ast, stmt)
-	}
 
-	for _, stmt := range ast {
-		fmt.Printf("%v\n", stmt)
-	}
+		for _, query := range queries {
+			parser := dbdb.NewParser(strings.NewReader(query))
+			stmt, err := parser.Parse()
+			if err != nil && err != io.EOF {
+				log.Fatal(err)
+			}
+			ast = append(ast, stmt)
+		}
+
+		for _, stmt := range ast {
+			fmt.Printf("%+#v\n", stmt)
+		}
+	*/
 }
