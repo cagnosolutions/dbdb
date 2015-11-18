@@ -187,10 +187,3 @@ func (ds *DataStore) Del(name string, id uint64) {
 		st.Del(id)
 	}
 }
-
-func (ds *DataStore) Query(name string, stmt map[string]map[string]interface{}) []*Doc {
-	if st, ok := ds.GetStore(name); ok {
-		return st.Query(stmt)
-	}
-	return nil
-}
