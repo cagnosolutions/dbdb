@@ -13,7 +13,7 @@ type Eq struct {
 }
 
 func (c Eq) Comp(v interface{}) bool {
-	return v == c.Val
+	return fmt.Sprint(v) == fmt.Sprint(c.Val)
 }
 
 func (c Eq) Field() string {
@@ -26,7 +26,7 @@ type Ne struct {
 }
 
 func (c Ne) Comp(v interface{}) bool {
-	return v != c.Val
+	return fmt.Sprint(v) != fmt.Sprint(c.Val)
 }
 
 func (c Ne) Field() string {
