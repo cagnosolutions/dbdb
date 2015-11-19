@@ -104,8 +104,10 @@ func (m *DocMap) Iter() <-chan *Doc {
 
 func (m *DocMap) Query(comps ...QueryComp) []*Doc {
 	results := make([]*Doc, 0)
+	log.Printf("comps: %+v\n", comps)
 	for _, comp := range comps {
 		for doc := range m.Iter() {
+			log.Printf("comp.Field(): %+v\n", comp.Field())
 			if val, ok := doc.Data[comp.Field()]; ok {
 				if comp.Comp(val) {
 					results = append(results, doc)
