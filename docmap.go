@@ -115,5 +115,6 @@ func (m *DocMap) Query(comps ...QueryComp) []*Doc {
 			}
 		}
 	}
+	log.Printf("results: %+v\n", results)
 	return results
 }
