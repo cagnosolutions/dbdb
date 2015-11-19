@@ -188,9 +188,11 @@ func (ds *DataStore) Del(name string, id uint64) {
 	}
 }
 
-func (ds *DataStore) Query(name string, stmt map[string]map[string]interface{}) []*Doc {
+func (ds *DataStore) Query(name string, comps ...QueryComp) []*Doc {
 	if st, ok := ds.GetStore(name); ok {
-		return st.Query(stmt)
+		if len(comps) > 0 {
+			return st.Query(comps...)
+		}
 	}
 	return nil
 }

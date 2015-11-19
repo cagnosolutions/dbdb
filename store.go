@@ -125,6 +125,6 @@ func (st *Store) Del(id uint64) {
 	}()
 }
 
-func (st *Store) Query(stmt map[string]map[string]interface{}) []*Doc {
-	return nil
+func (st *Store) Query(comps ...QueryComp) []*Doc {
+	return st.Docs.Query(comps...)
 }

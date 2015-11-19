@@ -2,6 +2,64 @@ package dbdb
 
 import "fmt"
 
+type QueryComp interface {
+	Comp(v interface{}) bool
+	Field() string
+}
+
+type Eq struct {
+	field string
+	value interface{}
+}
+
+func (c Eq) Comp(v interface{}) bool {
+	return v == c.value
+}
+
+func (c Eq) Field() string {
+	return c.field
+}
+
+type Ne struct {
+	field string
+	value interface{}
+}
+
+func (c Ne) Comp(v interface{}) bool {
+	return v != c.value
+}
+
+func (c Ne) Field() string {
+	return c.field
+}
+
+type Gt struct {
+	field string
+	value interface{}
+}
+
+func (c Gt) Comp(v interface{}) bool {
+	return fmt.Sprint(v) > fmt.Sprint(c.value)
+}
+
+func (c Gt) Field() string {
+	return c.field
+}
+
+type Lt struct {
+	field string
+	value interface{}
+}
+
+func (c Lt) Comp(v interface{}) bool {
+	return fmt.Sprint(v) < fmt.Sprint(c.value)
+}
+
+func (c Lt) Field() string {
+	return c.field
+}
+
+/*
 type QueryEngine struct {
 	Queries []*Stmt
 }
@@ -22,20 +80,20 @@ func (qe *QueryEngine) HasMatch(doc *Doc) bool {
 		return false
 	}
 	for _, stmt := range qe.Queries {
-		if docVal, ok := doc.Data[stmt.Field]; ok {
+		if docVal, ok := doc.Data[stmt.field]; ok {
 			switch stmt.Comp {
 			case "eq":
-				if docVal == stmt.Value {
+				if docVal == stmt.value {
 					return true
 				}
 			case "ne":
-				if docVal != stmt.Value {
+				if docVal != stmt.value {
 					return true
 				}
 			case "lt":
-				return lt(docVal, stmt.Value)
+				return lt(docVal, stmt.value)
 			case "gt":
-				return gt(docVal, stmt.Value)
+				return gt(docVal, stmt.value)
 			default:
 				return false
 			}
@@ -53,6 +111,7 @@ func gt(v1, v2 interface{}) bool {
 }
 
 type Stmt struct {
-	Field, Comp string
-	Value       interface{}
+	field, Comp string
+	value       interface{}
 }
+*/

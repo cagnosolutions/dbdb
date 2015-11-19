@@ -101,3 +101,17 @@ func (m *DocMap) Iter() <-chan *Doc {
 	}()
 	return ch
 }
+
+func (m *DocMap) Query(comps ...QueryComp) []*Doc {
+	results := make([]*Doc, 0)
+	for _, comp := range comps {
+		for doc := range m.Iter() {
+			if val, ok := doc.Data[comp.Field()]; ok {
+				if comp.Comp(val) {
+					results = append(results, doc)
+				}
+			}
+		}
+	}
+	return results
+}
