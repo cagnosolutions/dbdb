@@ -8,55 +8,55 @@ type QueryComp interface {
 }
 
 type Eq struct {
-	field string
-	value interface{}
+	Fld string
+	Val interface{}
 }
 
 func (c Eq) Comp(v interface{}) bool {
-	return v == c.value
+	return v == c.Val
 }
 
 func (c Eq) Field() string {
-	return c.field
+	return c.Fld
 }
 
 type Ne struct {
-	field string
-	value interface{}
+	Fld string
+	Val interface{}
 }
 
 func (c Ne) Comp(v interface{}) bool {
-	return v != c.value
+	return v != c.Val
 }
 
 func (c Ne) Field() string {
-	return c.field
+	return c.Fld
 }
 
 type Gt struct {
-	field string
-	value interface{}
+	Fld string
+	Val interface{}
 }
 
 func (c Gt) Comp(v interface{}) bool {
-	return fmt.Sprint(v) > fmt.Sprint(c.value)
+	return fmt.Sprint(v) > fmt.Sprint(c.Val)
 }
 
 func (c Gt) Field() string {
-	return c.field
+	return c.Fld
 }
 
 type Lt struct {
-	field string
-	value interface{}
+	Fld string
+	Val interface{}
 }
 
 func (c Lt) Comp(v interface{}) bool {
-	return fmt.Sprint(v) < fmt.Sprint(c.value)
+	return fmt.Sprint(v) < fmt.Sprint(c.Val)
 }
 
 func (c Lt) Field() string {
-	return c.field
+	return c.Fld
 }
 
 /*
@@ -80,20 +80,20 @@ func (qe *QueryEngine) HasMatch(doc *Doc) bool {
 		return false
 	}
 	for _, stmt := range qe.Queries {
-		if docVal, ok := doc.Data[stmt.field]; ok {
+		if docVal, ok := doc.Data[stmt.Fld]; ok {
 			switch stmt.Comp {
 			case "eq":
-				if docVal == stmt.value {
+				if docVal == stmt.Val {
 					return true
 				}
 			case "ne":
-				if docVal != stmt.value {
+				if docVal != stmt.Val {
 					return true
 				}
 			case "lt":
-				return lt(docVal, stmt.value)
+				return lt(docVal, stmt.Val)
 			case "gt":
-				return gt(docVal, stmt.value)
+				return gt(docVal, stmt.Val)
 			default:
 				return false
 			}
@@ -111,7 +111,7 @@ func gt(v1, v2 interface{}) bool {
 }
 
 type Stmt struct {
-	field, Comp string
-	value       interface{}
+	Fld, Comp string
+	Val       interface{}
 }
 */
