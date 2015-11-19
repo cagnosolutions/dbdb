@@ -110,6 +110,7 @@ func (m *DocMap) Query(comps ...QueryComp) []*Doc {
 			log.Printf("comp.Field(): %+v\n", comp.Field())
 			if val, ok := doc.Data[comp.Field()]; ok {
 				if comp.Comp(val) {
+					log.Printf("found match (doc): %+v\n", doc)
 					results = append(results, doc)
 				}
 			}
