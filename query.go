@@ -1,6 +1,9 @@
 package dbdb
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type QueryComp interface {
 	Comp(v interface{}) bool
@@ -13,7 +16,7 @@ type Eq struct {
 }
 
 func (c Eq) Comp(v interface{}) bool {
-	return fmt.Sprint(v) == fmt.Sprint(c.Val)
+	return reflect.DeepEqual(v, c.Val)
 }
 
 func (c Eq) Field() string {
