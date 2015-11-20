@@ -19,6 +19,7 @@ func NewDoc(id uint64, data interface{}) *Doc {
 	switch data.(type) {
 	case map[string]interface{}:
 		doc.Data = data.(map[string]interface{})
+		SanitizeMapNums(doc.Data)
 	default:
 		doc.Data = ToMap(data)
 	}

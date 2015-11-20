@@ -18,6 +18,38 @@ func toFixed(num float64, precision int) float64 {
 	return float64(round(num*output)) / output
 }
 
+// used to transform maps inner numeric values to float64
+func SanitizeMapNums(m map[string]interface{}) {
+	for k, v := range m {
+		switch v.(type) {
+		case map[string]interface{}:
+			SanitizeMapNums(m[k].(map[string]interface{}))
+		case int:
+			m[k] = float64(m[k].(int))
+		case int8:
+			m[k] = float64(m[k].(int8))
+		case int16:
+			m[k] = float64(m[k].(int16))
+		case int32:
+			m[k] = float64(m[k].(int32))
+		case int64:
+			m[k] = float64(m[k].(int64))
+		case uint:
+			m[k] = float64(m[k].(uint))
+		case uint8:
+			m[k] = float64(m[k].(uint8))
+		case uint16:
+			m[k] = float64(m[k].(uint16))
+		case uint32:
+			m[k] = float64(m[k].(uint32))
+		case uint64:
+			m[k] = float64(m[k].(uint64))
+		case float32:
+			m[k] = float64(m[k].(float32))
+		}
+	}
+}
+
 // used to transform a struct into a map
 func ToMap(v interface{}) map[string]interface{} {
 	value := reflect.ValueOf(v)
