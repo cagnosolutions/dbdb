@@ -209,3 +209,13 @@ func (s *Server) Del(rpcdoc RPCDoc, resp *bool) error {
 	*resp = true
 	return nil
 }
+
+func (s *Server) Query(rpcdoc RPCDoc, resp *QuerySet) error {
+	docs, n := s.ds.Query(rpcdoc.Store, rpcdoc.Comps...)
+	if docs == nil || n == -1 {
+		return fmt.Errorf("error executing query stmt...\n")
+	}
+	querySet := &QuerySet{docs, n}
+	*resp = *querySet
+	return nil
+}

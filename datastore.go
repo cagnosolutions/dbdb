@@ -195,5 +195,5 @@ func (ds *DataStore) Query(name string, comps ...QueryComp) ([]*Doc, int) {
 			return docs, len(docs)
 		}
 	}
-	return nil, 0
+	return nil, -1
 }

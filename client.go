@@ -182,3 +182,13 @@ func (c *Client) Del(name string, id uint64) bool {
 	Log(c.conn.Call(RPC("Del"), rpcdoc, &ok))
 	return ok
 }
+
+func (c *Client) Query(name string, comps ...QueryComp) ([]*Doc, int) {
+	var querySet QuerySet
+	rpcdoc := RPCDoc{
+		Store: name,
+		Comps: comps,
+	}
+	Log(c.conn.Call(RPC("Query"), rpcdoc, &querySet))
+	return querySet.Docs, querySet.Count
+}
