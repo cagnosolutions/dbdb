@@ -102,6 +102,7 @@ func (m *DocMap) Iter() <-chan *Doc {
 	return ch
 }
 
+//TODO: fix query, matches all first queries...
 func (m *DocMap) Query(comps ...QueryComp) []*Doc {
 	results := make([]*Doc, 0)
 	for _, comp := range comps {
