@@ -103,7 +103,7 @@ func (m *DocMap) Iter() <-chan *Doc {
 }
 
 //TODO: fix query, matches all first queries...
-func (m *DocMap) Query(comps ...QueryComp) []*Doc {
+func (m *DocMap) _Query(comps ...QueryComp) []*Doc {
 	results := make([]*Doc, 0)
 	for _, comp := range comps {
 		for doc := range m.Iter() {
@@ -115,4 +115,21 @@ func (m *DocMap) Query(comps ...QueryComp) []*Doc {
 		}
 	}
 	return results
+}
+
+func (m *DocMap) Query(comps ...QueryComp) []*Doc {
+	docs := make([]*Doc, 0)
+	var match bool
+	for doc := range m.Iter() {
+		match = true
+		for _, comp := range comps {
+			if v, ok := doc.Data[comp.Field()]; !ok || !comp.Comp(v) {
+				match = false // got mismatch
+			}
+		}
+		if match { // no mismatches
+			docs = append(docs, doc)
+		}
+	}
+	return docs
 }
