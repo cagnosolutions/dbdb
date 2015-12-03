@@ -163,14 +163,14 @@ func (c *Client) Get(name string, id uint64) *Doc {
 	return doc
 }
 
-func (c *Client) GetAll(name string, id ...uint64) []*Doc {
-	var docs []*Doc
+func (c *Client) GetAll(name string, id ...uint64) DocSorted {
+	var docSorted DocSorted
 	rpcdoc := RPCDoc{
 		Store:  name,
 		DocIds: id,
 	}
-	Log(c.conn.Call(RPC("GetAll"), rpcdoc, &docs))
-	return docs
+	Log(c.conn.Call(RPC("GetAll"), rpcdoc, &docSorted))
+	return docSorted
 }
 
 func (c *Client) Del(name string, id uint64) bool {
@@ -183,12 +183,12 @@ func (c *Client) Del(name string, id uint64) bool {
 	return ok
 }
 
-func (c *Client) Query(name string, comps ...QueryComp) ([]*Doc, int) {
-	var querySet QuerySet
+func (c *Client) Query(name string, comps ...QueryComp) DocSorted {
+	var docSorted DocSorted
 	rpcdoc := RPCDoc{
 		Store: name,
 		Comps: comps,
 	}
-	Log(c.conn.Call(RPC("Query"), rpcdoc, &querySet))
-	return querySet.Docs, querySet.Count
+	Log(c.conn.Call(RPC("Query"), rpcdoc, &docSorted))
+	return docSorted
 }

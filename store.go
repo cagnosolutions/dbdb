@@ -104,7 +104,7 @@ func (st *Store) Get(id uint64) *Doc {
 	return nil
 }
 
-func (st *Store) GetAll(id ...uint64) []*Doc {
+func (st *Store) GetAll(id ...uint64) DocSorted {
 	if len(id) == 0 {
 		return st.Docs.GetAll()
 	}
@@ -125,6 +125,6 @@ func (st *Store) Del(id uint64) {
 	}()
 }
 
-func (st *Store) Query(comps ...QueryComp) []*Doc {
+func (st *Store) Query(comps ...QueryComp) DocSorted {
 	return st.Docs.Query(comps...)
 }

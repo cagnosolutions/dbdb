@@ -210,12 +210,11 @@ func (s *Server) Del(rpcdoc RPCDoc, resp *bool) error {
 	return nil
 }
 
-func (s *Server) Query(rpcdoc RPCDoc, resp *QuerySet) error {
-	docs, n := s.ds.Query(rpcdoc.Store, rpcdoc.Comps...)
-	if docs == nil || n == -1 {
+func (s *Server) Query(rpcdoc RPCDoc, resp *DocSorted) error {
+	docs := s.ds.Query(rpcdoc.Store, rpcdoc.Comps...)
+	if docs == nil {
 		return fmt.Errorf("error executing query stmt...\n")
 	}
-	querySet := &QuerySet{docs, n}
-	*resp = *querySet
+	*resp = docs
 	return nil
 }

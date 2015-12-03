@@ -68,7 +68,7 @@ func (m *DocMap) Get(id uint64) (*Doc, bool) {
 	return val, ok
 }
 
-func (m *DocMap) GetAll() []*Doc {
+func (m *DocMap) GetAll() DocSorted {
 	var docs DocSorted
 	for doc := range m.Iter() {
 		if doc != nil {
@@ -102,8 +102,8 @@ func (m *DocMap) Iter() <-chan *Doc {
 	return ch
 }
 
-func (m *DocMap) Query(comps ...QueryComp) []*Doc {
-	docs := make([]*Doc, 0)
+func (m *DocMap) Query(comps ...QueryComp) DocSorted {
+	var docs DocSorted
 	var match bool
 	for doc := range m.Iter() {
 		match = true
@@ -116,5 +116,6 @@ func (m *DocMap) Query(comps ...QueryComp) []*Doc {
 			docs = append(docs, doc)
 		}
 	}
+	sort.Sort(docs)
 	return docs
 }

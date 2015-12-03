@@ -175,7 +175,7 @@ func (ds *DataStore) Get(name string, id uint64) *Doc {
 	return nil
 }
 
-func (ds *DataStore) GetAll(name string, id ...uint64) []*Doc {
+func (ds *DataStore) GetAll(name string, id ...uint64) DocSorted {
 	if st, ok := ds.GetStore(name); ok {
 		return st.GetAll(id...)
 	}
@@ -188,12 +188,11 @@ func (ds *DataStore) Del(name string, id uint64) {
 	}
 }
 
-func (ds *DataStore) Query(name string, comps ...QueryComp) ([]*Doc, int) {
+func (ds *DataStore) Query(name string, comps ...QueryComp) DocSorted {
 	if st, ok := ds.GetStore(name); ok {
 		if len(comps) > 0 {
-			docs := st.Query(comps...)
-			return docs, len(docs)
+			return st.Query(comps...)
 		}
 	}
-	return nil, -1
+	return nil
 }

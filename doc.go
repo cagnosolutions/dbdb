@@ -40,7 +40,6 @@ func (d *Doc) As(v interface{}) error {
 	return ToStruct(d.Data, v)
 }
 
-// SORT
 type DocSorted []*Doc
 
 func (ds DocSorted) Len() int {
@@ -53,4 +52,45 @@ func (ds DocSorted) Less(i, j int) bool {
 
 func (ds DocSorted) Swap(i, j int) {
 	ds[i], ds[j] = ds[j], ds[i]
+}
+
+func (ds DocSorted) One() *Doc {
+	if len(ds) >= 1 {
+		return ds[0]
+	}
+	return &Doc{}
+}
+
+func (ds DocSorted) Ids() []uint64 {
+	var ids []uint64
+	for _, doc := range ds {
+		ids = append(ids, doc.Id)
+	}
+	return ids
+}
+
+func (ds DocSorted) Fields(name string) []interface{} {
+	var flds []interface{}
+	for _, doc := range ds {
+		if v, ok := doc.Data[name]; ok {
+			flds = append(flds, v)
+		}
+	}
+	return flds
+}
+
+type DocSet struct {
+	Id   uint64
+	Data map[string]interface{}
+}
+
+func (ds DocSorted) Data() <-chan DocSet {
+	ch := make(chan DocSet)
+	go func() {
+		for _, doc := range ds {
+			ch <- DocSet{doc.Id, doc.Data}
+		}
+		close(ch)
+	}()
+	return ch
 }
