@@ -65,7 +65,7 @@ func (ds DocSorted) One() *Doc {
 }
 
 func (ds DocSorted) Limit(count int) DocSorted {
-	if len(count) >= 1 {
+	if count >= 1 && count <= len(ds) {
 		return ds[0:count]
 	}
 	return ds // 0 reutrns all results for now
