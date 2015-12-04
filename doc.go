@@ -64,14 +64,14 @@ func (ds DocSorted) One() *Doc {
 	return &Doc{}
 }
 
-func (ds DocSorted) Limit(count uint) DocSorted {
+func (ds DocSorted) Limit(count int) DocSorted {
 	if len(count) >= 1 {
 		return ds[0:count]
 	}
 	return ds // 0 reutrns all results for now
 }
 
-func (ds DocSorted) Page(idx, count uint) DocSorted {
+func (ds DocSorted) Page(idx, count int) DocSorted {
 	page := idx + count
 	if page < len(ds) {
 		return ds[idx:count]
