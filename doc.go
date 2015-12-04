@@ -36,8 +36,11 @@ func (d *Doc) Update(data interface{}) {
 	d.Modified = time.Now().Unix()
 }
 
-func (d *Doc) As(v interface{}) error {
-	return ToStruct(d.Data, v)
+func (d *Doc) As(v interface{}) bool {
+	if err := ToStruct(d.Data, v); err != nil {
+		return false
+	}
+	return true
 }
 
 type DocSorted []*Doc
@@ -59,6 +62,23 @@ func (ds DocSorted) One() *Doc {
 		return ds[0]
 	}
 	return &Doc{}
+}
+
+func (ds DocSorted) Limit(count uint) DocSorted {
+	if len(count) >= 1 {
+		return ds[0:count]
+	}
+	return ds // 0 reutrns all results for now
+}
+
+func (ds DocSorted) Page(idx, count uint) DocSorted {
+	page := idx + count
+	if page < len(ds) {
+		return ds[idx:count]
+	} else if idx > len(ds)-1 {
+		return ds
+	}
+	return ds[idx:]
 }
 
 func (ds DocSorted) Ids() []uint64 {
