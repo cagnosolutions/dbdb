@@ -169,10 +169,14 @@ func (ds *DataStore) Has(name string, id uint64) bool {
 }
 
 func (ds *DataStore) Get(name string, id uint64) *Doc {
+	var doc *Doc
 	if st, ok := ds.GetStore(name); ok {
-		return st.Get(id)
+		doc = st.Get(id)
+		if doc == nil {
+			doc = &Doc{}
+		}
 	}
-	return nil
+	return doc
 }
 
 func (ds *DataStore) GetAll(name string, id ...uint64) DocSorted {

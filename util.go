@@ -67,11 +67,13 @@ func ToMap(v interface{}) map[string]interface{} {
 	for _, field := range fields {
 		val := value.FieldByName(field.Name)
 		var finalVal interface{}
+		/* skips all default values including false "" and 0
+		unwanted when saveing data
 		zero := reflect.Zero(val.Type()).Interface()
 		current := val.Interface()
 		if reflect.DeepEqual(current, zero) {
 			continue
-		}
+		}*/
 		if v, ok := isStruct(val.Interface()); ok {
 			finalVal = ToMap(v)
 		} else {
