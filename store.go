@@ -49,7 +49,7 @@ func (st *Store) Load(ids []int) {
 	var docid float64
 	for _, id := range ids {
 		docid = float64(id)
-		file := fmt.Sprintf("db/%s/%d.json", st.Name, docid)
+		file := fmt.Sprintf("db/%s/%d.json", st.Name, int(docid))
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
 			log.Fatalf("Store.Load() -> invalid file (%v), possible corruption?\n", file)
@@ -82,7 +82,7 @@ func (st *Store) Add(val interface{}) float64 {
 	doc := NewDoc(StoreId, val)
 	st.Docs.Set(StoreId, doc)
 	func() {
-		WriteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, StoreId), doc)
+		WriteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, int(StoreId)), doc)
 	}()
 	return StoreId
 }
@@ -92,7 +92,7 @@ func (st *Store) Set(id float64, val interface{}) {
 		doc.Update(val)
 		st.Docs.Set(id, doc)
 		func() {
-			WriteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, id), doc)
+			WriteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, int(id)), doc)
 		}()
 	}
 }
@@ -126,7 +126,7 @@ func (st *Store) GetAll(id ...float64) DocSorted {
 func (st *Store) Del(id float64) {
 	st.Docs.Del(id)
 	func() {
-		DeleteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, id))
+		DeleteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, int(id)))
 	}()
 }
 
