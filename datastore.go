@@ -148,27 +148,27 @@ func (ds *DataStore) DelStore(name string) {
 	}
 }
 
-func (ds *DataStore) Add(name string, val interface{}) uint64 {
+func (ds *DataStore) Add(name string, val interface{}) float64 {
 	if st, ok := ds.GetStore(name); ok {
 		return st.Add(val)
 	}
 	return 0
 }
 
-func (ds *DataStore) Set(name string, id uint64, val interface{}) {
+func (ds *DataStore) Set(name string, id float64, val interface{}) {
 	if st, ok := ds.GetStore(name); ok {
 		st.Set(id, val)
 	}
 }
 
-func (ds *DataStore) Has(name string, id uint64) bool {
+func (ds *DataStore) Has(name string, id float64) bool {
 	if st, ok := ds.GetStore(name); ok {
 		return st.Has(id)
 	}
 	return false
 }
 
-func (ds *DataStore) Get(name string, id uint64) *Doc {
+func (ds *DataStore) Get(name string, id float64) *Doc {
 	var doc *Doc
 	if st, ok := ds.GetStore(name); ok {
 		doc = st.Get(id)
@@ -179,14 +179,14 @@ func (ds *DataStore) Get(name string, id uint64) *Doc {
 	return doc
 }
 
-func (ds *DataStore) GetAll(name string, id ...uint64) DocSorted {
+func (ds *DataStore) GetAll(name string, id ...float64) DocSorted {
 	if st, ok := ds.GetStore(name); ok {
 		return st.GetAll(id...)
 	}
 	return nil
 }
 
-func (ds *DataStore) Del(name string, id uint64) {
+func (ds *DataStore) Del(name string, id float64) {
 	if st, ok := ds.GetStore(name); ok {
 		st.Del(id)
 	}

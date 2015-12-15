@@ -7,13 +7,14 @@ import (
 	"log"
 	"os"
 	"sort"
-	"sync/atomic"
+	"sync"
 )
 
 type StoreStat struct {
-	Name     string
-	Id, Docs uint64
-	Size     float64
+	Name string
+	Id   float64
+	Docs uint64
+	Size float64
 }
 
 type StoreStatSorted []*StoreStat
@@ -32,8 +33,9 @@ func (sss StoreStatSorted) Swap(i, j int) {
 
 type Store struct {
 	Name    string
-	StoreId uint64
+	StoreId float64
 	Docs    *DocMap
+	sync.RWMutex
 }
 
 func NewStore(Name string) *Store {
@@ -44,9 +46,9 @@ func NewStore(Name string) *Store {
 }
 
 func (st *Store) Load(ids []int) {
-	var docid uint64
+	var docid float64
 	for _, id := range ids {
-		docid = uint64(id)
+		docid = float64(id)
 		file := fmt.Sprintf("db/%s/%d.json", st.Name, docid)
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -64,7 +66,7 @@ func (st *Store) Load(ids []int) {
 // size on disk, not document count
 func (st *Store) Size() float64 {
 	var size int64
-	for i := 1; uint64(i) < st.StoreId; i++ {
+	for i := 1; float64(i) < st.StoreId; i++ {
 		if info, err := os.Lstat(fmt.Sprintf("db/%s/%d.json", st.Name, i)); err == nil {
 			size += info.Size()
 		}
@@ -72,8 +74,11 @@ func (st *Store) Size() float64 {
 	return toFixed(float64(size)/float64(1<<10), 2)
 }
 
-func (st *Store) Add(val interface{}) uint64 {
-	StoreId := atomic.AddUint64(&st.StoreId, uint64(1))
+func (st *Store) Add(val interface{}) float64 {
+	st.Lock()
+	st.StoreId++
+	StoreId := st.StoreId
+	st.Unlock()
 	doc := NewDoc(StoreId, val)
 	st.Docs.Set(StoreId, doc)
 	func() {
@@ -82,7 +87,7 @@ func (st *Store) Add(val interface{}) uint64 {
 	return StoreId
 }
 
-func (st *Store) Set(id uint64, val interface{}) {
+func (st *Store) Set(id float64, val interface{}) {
 	if doc, ok := st.Docs.Get(id); ok {
 		doc.Update(val)
 		st.Docs.Set(id, doc)
@@ -92,19 +97,19 @@ func (st *Store) Set(id uint64, val interface{}) {
 	}
 }
 
-func (st *Store) Has(id uint64) bool {
+func (st *Store) Has(id float64) bool {
 	_, ok := st.Docs.Get(id)
 	return ok
 }
 
-func (st *Store) Get(id uint64) *Doc {
+func (st *Store) Get(id float64) *Doc {
 	if doc, ok := st.Docs.Get(id); ok {
 		return doc
 	}
 	return nil
 }
 
-func (st *Store) GetAll(id ...uint64) DocSorted {
+func (st *Store) GetAll(id ...float64) DocSorted {
 	if len(id) == 0 {
 		return st.Docs.GetAll()
 	}
@@ -118,7 +123,7 @@ func (st *Store) GetAll(id ...uint64) DocSorted {
 	return docs
 }
 
-func (st *Store) Del(id uint64) {
+func (st *Store) Del(id float64) {
 	st.Docs.Del(id)
 	func() {
 		DeleteDoc(fmt.Sprintf("db/%s/%d.json", st.Name, id))

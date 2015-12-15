@@ -8,12 +8,12 @@ import (
 	"sync"
 )
 
-const SHARD_COUNT uint32 = 64
+const SHARD_COUNT = 64
 
 type DocMap []*Shard
 
 type Shard struct {
-	Docs map[uint64]*Doc
+	Docs map[float64]*Doc
 	sync.RWMutex
 }
 
@@ -21,21 +21,21 @@ func NewDocMap() *DocMap {
 	m := make(DocMap, SHARD_COUNT)
 	for i := 0; uint32(i) < SHARD_COUNT; i++ {
 		m[i] = &Shard{
-			Docs: make(map[uint64]*Doc),
+			Docs: make(map[float64]*Doc),
 		}
 	}
 	return &m
 }
 
-func getshard(n uint64) uint32 {
-	hasher := fnv.New32a()
+func getshard(n float64) uint64 {
+	hasher := fnv.New64a()
 	key := make([]byte, 10)
-	binary.PutUvarint(key, n)
+	binary.PutVarint(key, int64(n))
 	_, err := hasher.Write(key)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return hasher.Sum32() % SHARD_COUNT
+	return hasher.Sum64() % SHARD_COUNT
 }
 
 func (m *DocMap) Size() uint64 {
@@ -48,19 +48,18 @@ func (m *DocMap) Size() uint64 {
 	return count
 }
 
-func (m *DocMap) GetShard(key uint64) *Shard {
-	bucket := getshard(key)
-	return (*m)[bucket]
+func (m *DocMap) GetShard(key float64) *Shard {
+	return (*m)[getshard(key)]
 }
 
-func (m *DocMap) Set(id uint64, val *Doc) {
+func (m *DocMap) Set(id float64, val *Doc) {
 	shard := m.GetShard(id)
 	shard.Lock()
 	shard.Docs[id] = val
 	shard.Unlock()
 }
 
-func (m *DocMap) Get(id uint64) (*Doc, bool) {
+func (m *DocMap) Get(id float64) (*Doc, bool) {
 	shard := m.GetShard(id)
 	shard.RLock()
 	val, ok := shard.Docs[id]
@@ -79,7 +78,7 @@ func (m *DocMap) GetAll() DocSorted {
 	return docs
 }
 
-func (m *DocMap) Del(id uint64) {
+func (m *DocMap) Del(id float64) {
 	if shard := m.GetShard(id); shard != nil {
 		shard.Lock()
 		delete(shard.Docs, id)

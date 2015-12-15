@@ -132,7 +132,7 @@ func (c *Client) Add(name string, val interface{}) uint64 {
 	return id
 }
 
-func (c *Client) Set(name string, id uint64, val interface{}) bool {
+func (c *Client) Set(name string, id float64, val interface{}) bool {
 	var ok bool
 	rpcdoc := RPCDoc{
 		Store:  name,
@@ -143,7 +143,7 @@ func (c *Client) Set(name string, id uint64, val interface{}) bool {
 	return ok
 }
 
-func (c *Client) Has(name string, id uint64) bool {
+func (c *Client) Has(name string, id float64) bool {
 	var ok bool
 	rpcdoc := RPCDoc{
 		Store: name,
@@ -153,7 +153,7 @@ func (c *Client) Has(name string, id uint64) bool {
 	return ok
 }
 
-func (c *Client) Get(name string, id uint64) *Doc {
+func (c *Client) Get(name string, id float64) *Doc {
 	var doc *Doc
 	rpcdoc := RPCDoc{
 		Store: name,
@@ -163,7 +163,7 @@ func (c *Client) Get(name string, id uint64) *Doc {
 	return doc
 }
 
-func (c *Client) GetAll(name string, id ...uint64) DocSorted {
+func (c *Client) GetAll(name string, id ...float64) DocSorted {
 	var docSorted DocSorted
 	rpcdoc := RPCDoc{
 		Store:  name,
@@ -173,7 +173,7 @@ func (c *Client) GetAll(name string, id ...uint64) DocSorted {
 	return docSorted
 }
 
-func (c *Client) Del(name string, id uint64) bool {
+func (c *Client) Del(name string, id float64) bool {
 	var ok bool
 	rpcdoc := RPCDoc{
 		Store: name,

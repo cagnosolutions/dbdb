@@ -2,8 +2,8 @@ package dbdb
 
 type RPCDoc struct {
 	Store  string
-	DocId  uint64
+	DocId  float64
 	DocVal map[string]interface{}
-	DocIds []uint64
+	DocIds []float64
 	Comps  []QueryComp
 }

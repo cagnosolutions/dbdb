@@ -165,7 +165,7 @@ func (s *Server) DelStore(store string, resp *bool) error {
 	return nil
 }
 
-func (s *Server) Add(rpcdoc RPCDoc, resp *uint64) error {
+func (s *Server) Add(rpcdoc RPCDoc, resp *float64) error {
 	docid := s.ds.Add(rpcdoc.Store, rpcdoc.DocVal)
 	if docid == 0 {
 		return fmt.Errorf("error adding document (%+v)\n", rpcdoc.DocVal)

@@ -3,13 +3,13 @@ package dbdb
 import "time"
 
 type Doc struct {
-	Id       uint64                 `json:"id"`
+	Id       float64                 `json:"id"`
 	Created  int64                  `json:"created"`
 	Modified int64                  `json:"modified"`
 	Data     map[string]interface{} `json:"data"`
 }
 
-func NewDoc(id uint64, data interface{}) *Doc {
+func NewDoc(id float64, data interface{}) *Doc {
 	time := time.Now().Unix()
 	doc := &Doc{
 		Id:       id,
@@ -81,8 +81,8 @@ func (ds DocSorted) Page(idx, count int) DocSorted {
 	return ds[idx:]
 }
 
-func (ds DocSorted) Ids() []uint64 {
-	var ids []uint64
+func (ds DocSorted) Ids() []float64 {
+	var ids []float64
 	for _, doc := range ds {
 		ids = append(ids, doc.Id)
 	}
@@ -100,7 +100,7 @@ func (ds DocSorted) Fields(name string) []interface{} {
 }
 
 type DocSet struct {
-	Id   uint64
+	Id   float64
 	Data map[string]interface{}
 }
 

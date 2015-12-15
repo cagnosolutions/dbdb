@@ -1,6 +1,7 @@
 package dbdb
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -51,7 +52,7 @@ func SanitizeMapNums(m map[string]interface{}) {
 }
 
 // used to transform a struct into a map
-func ToMap(v interface{}) map[string]interface{} {
+func _ToMap(v interface{}) map[string]interface{} {
 	value := reflect.ValueOf(v)
 	if value.Kind() == reflect.Ptr {
 		value = value.Elem()
@@ -84,6 +85,21 @@ func ToMap(v interface{}) map[string]interface{} {
 	return output
 }
 
+func ToMap(v interface{}) map[string]interface{} {
+	b, err := json.Marshal(v)
+	if err != nil {
+		log.Printf("dbdb >> util.go >> ToMap() >> json.Marshal(v): %v\n", err)
+		return nil
+	}
+	var m map[string]interface{}
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		log.Printf("dbdb >> util.go >> ToMap() >> json.Unmarshal(b, &m): %v\n", err)
+		return nil
+	}
+	return m
+}
+
 // helper used to check if current interface is a struct
 func isStruct(s interface{}) (interface{}, bool) {
 	v := reflect.ValueOf(s)
@@ -111,13 +127,29 @@ func structFields(value reflect.Value) []reflect.StructField {
 }
 
 // used to transform a map into a struct
-func ToStruct(m map[string]interface{}, ptr interface{}) error {
+func _ToStruct(m map[string]interface{}, ptr interface{}) error {
 	structVal := reflect.ValueOf(ptr)
 	if structVal.Kind() != reflect.Ptr || structVal.IsNil() {
 		return fmt.Errorf("Expected pointer didn't get one...")
 	}
 	for mFld, mVal := range m {
 		setField(structVal.Elem(), strings.Title(mFld), mVal)
+	}
+	return nil
+}
+
+func ToStruct(m map[string]interface{}, ptr interface{}) error {
+	structVal := reflect.ValueOf(ptr)
+	if structVal.Kind() != reflect.Ptr || structVal.IsNil() {
+		return fmt.Errorf("Expected pointer didn't get one...")
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(b, ptr)
+	if err != nil {
+		return err
 	}
 	return nil
 }
